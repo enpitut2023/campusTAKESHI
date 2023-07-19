@@ -1,2 +1,2 @@
-# canpusTAKESHI
+# campusTAKESHI
 # Atsushi

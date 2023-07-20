@@ -1,4 +1,4 @@
-import { getRatings } from "./lib.js";
+import { getRatings, stringToHtmlElement } from "./lib.js";
 
 function round(value) {
   let ret;
@@ -34,16 +34,33 @@ function countDifficulty(ratings) {
   return dict;
 }
 
-const kindnessRatingValue = document.querySelector("#kindness-rating-value");
-const kindnessRatingStar = document.querySelector("#kindness-rating-star");
-const difficultyRatingValue = document.querySelector(
-  "#difficulty-rating-value"
-);
-const kindnessTotalVotes = document.querySelector("#kindness-total-votes");
-const difficultyRatingStar = document.querySelector("#difficulty-rating-star");
-const difficultyTotalVotes = document.querySelector("#difficulty-total-votes");
-
+// 拡張機能が読み込まれたら最初に実行される関数
 export async function main() {
+  // 文字列からHTMLの要素を作りましょう
+  const exampleElement = stringToHtmlElement(`
+    <p id="example-id" class="example-class" style="color: red; font-size: 32px">
+      Hello world!
+    </p>
+  `);
+  // course-titleというIDのh1をHTMLの要素として持ってきましょう
+  const courseTitleElement = document.querySelector("#course-title");
+  // course-titleの次の要素としてexampleElementを追加してみましょう
+  courseTitleElement.insertAdjacentElement("afterend", exampleElement);
+
+  // ↓これをやってみて
+  const kindnessRatingValue = document.querySelector("#kindness-rating-value");
+  const kindnessRatingStar = document.querySelector("#kindness-rating-star");
+  const difficultyRatingValue = document.querySelector(
+    "#difficulty-rating-value"
+  );
+  const kindnessTotalVotes = document.querySelector("#kindness-total-votes");
+  const difficultyRatingStar = document.querySelector(
+    "#difficulty-rating-star"
+  );
+  const difficultyTotalVotes = document.querySelector(
+    "#difficulty-total-votes"
+  );
+
   const courseId = "GB13614";
   const ratings = await getRatings(courseId);
 

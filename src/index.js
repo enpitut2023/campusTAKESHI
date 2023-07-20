@@ -1,4 +1,4 @@
-import { getRatings } from "./fetch.js";
+import { getRatings } from "./lib.js";
 
 function round(value) {
   let ret;

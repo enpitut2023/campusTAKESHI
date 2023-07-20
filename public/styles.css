@@ -1,3 +1,6 @@
+/* //////////////////// */
+/* 評価を表示する機能のCSS */
+/* //////////////////// */
 :root {
   --star-size: 40px;
   --star-color: #dbdbd9;
@@ -6,9 +9,9 @@
 .txt{
   font-size: 20px;
 }
-.rating-label{
+.rating{
   font-size: 20px;
-  margin-left: 40px;
+  margin-right: 40px;
 }
 .rating-value{
   font-size: 30px;
@@ -21,6 +24,9 @@
   font-family: Times;
   line-height: 1;
 } 
+.total-votes{
+  font-size: 15px;
+}
 
 .stars::after {
   content: "★★★★★";

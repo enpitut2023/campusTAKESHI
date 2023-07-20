@@ -34,3 +34,19 @@ export async function getRatings(courseId) {
   const snapshot = await getDocs(ratings);
   return snapshot.docs.map((e) => e.data());
 }
+
+/**
+ * "<h1>hello</h1>" みたいな文字列からHTMLの要素を生成する。
+ *
+ * 感覚的な説明：
+ * 本来はHTMLに書いてあったh1を `document.querySelector` で持ってきていたところを、
+ * 流れをひっくり返してJS側でそのh1を作ってHTMLに突っ込み直そうという考え。
+ * この関数で作ったh1などの要素はappendChildやinsertAdjacentElementなどでHTMLに突っ込める。
+ * @param {string} s HTMLを記述してある文字列
+ * @return {Node}
+ */
+export function stringToHtmlElement(s) {
+  const template = document.createElement("template");
+  template.innerHTML = s.trim();
+  return template.content.firstChild;
+}

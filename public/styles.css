@@ -1,0 +1,40 @@
+:root {
+  --star-size: 40px;
+  --star-color: #dbdbd9;
+  --star-background: #f0bc43;
+}
+.txt{
+  font-size: 20px;
+}
+.rating-label{
+  font-size: 20px;
+  margin-left: 40px;
+}
+.rating-value{
+  font-size: 30px;
+}
+
+.stars {
+  --percent: calc(var(--rating) / 5 * 100%);
+
+  display: inline-block;
+  font-size: var(--star-size);
+  font-family: Times;
+  line-height: 1;
+} 
+
+.stars::after {
+  content: "★★★★★";
+  letter-spacing: 3px;
+  background: linear-gradient( 
+    90deg,
+    var(--star-background) var(--percent),
+    var(--star-color) var(--percent)
+   );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+} 
+.rating{
+  /* display: inline-block; */
+  display: inline;
+}

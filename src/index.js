@@ -259,6 +259,13 @@ export async function main() {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
+    courseId
+    if (nthForm == 0){
+    submitTeacherKindness(courseId,value);
+    }
+    else if (nthForm == 1){
+    submitAssignmentDifficulty(courseId,value);
+    }
     console.log("value:", value, "nthForm=", nthForm);
 
     let changeTarget;

@@ -1,9 +1,16 @@
 import { initializeApp } from "./vendor/firebase-app.js";
 import {
+  doc,
   getDocs,
   collection,
   getFirestore,
+  setDoc,
 } from "./vendor/firebase-firestore.js";
+import {
+  onAuthStateChanged,
+  getAuth,
+  signInAnonymously,
+} from "./vendor/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAXyFI7_Anzpx4W3dfYDJcnMICetu9NsOQ",
@@ -16,23 +23,69 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const auth = getAuth();
 const db = getFirestore(app);
+
+/** @type {string | undefined} */
+let userId = undefined;
 
 /**
  * @typedef {object} Rating
- * @property {string} uid ユーザーID
  * @property {number} value 星の数 (1~5の整数)
- * @property {string} criterion 評価基準
  */
 
 /**
  * @param {string} courseId
+ * @param {string} collectionName
  * @returns {Promise<Rating[]>}
  */
-export async function getRatings(courseId) {
-  const ratings = collection(db, "courses", courseId, "ratings");
+async function getRatings(courseId, collectionName) {
+  const ratings = collection(db, "courses", courseId, collectionName);
   const snapshot = await getDocs(ratings);
   return snapshot.docs.map((e) => e.data());
+}
+
+/**
+ * @param {string} courseId 科目番号
+ * @returns {Promise<Rating[]>}
+ */
+export async function getTeacherKindnessRatings(courseId) {
+  return await getRatings(courseId, "teacher-kindness-ratings");
+}
+
+/**
+ * @param {string} courseId 科目番号
+ * @returns {Promise<Rating[]>}
+ */
+export async function getAssignmentDifficultyRatings(courseId) {
+  return await getRatings(courseId, "assignment-difficulty-ratings");
+}
+
+async function submitRating(courseId, value, collectionName) {
+  if (userId === undefined) {
+    throw new Error("userId is undefined");
+  }
+
+  const ratings = doc(db, "courses", courseId, collectionName, userId);
+  await setDoc(ratings, { value });
+}
+
+/**
+ * @param {string} courseId 科目番号
+ * @param {number} value 星の数 (1~5)
+ * @returns {Promise<void>}
+ */
+export async function submitTeacherKindness(courseId, value) {
+  await submitRating(courseId, value, "teacher-kindness-ratings");
+}
+
+/**
+ * @param {string} courseId 科目番号
+ * @param {number} value 星の数 (1~5)
+ * @returns {Promise<void>}
+ */
+export async function submitAssignmentDifficulty(courseId, value) {
+  await submitRating(courseId, value, "assignment-difficulty-ratings");
 }
 
 /**
@@ -49,4 +102,19 @@ export function stringToHtmlElement(s) {
   const template = document.createElement("template");
   template.innerHTML = s.trim();
   return template.content.firstChild;
+}
+
+export async function main() {
+  await signInAnonymously(auth);
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is signed in, see docs for a list of available properties
+      // https://firebase.google.com/docs/reference/js/auth.user
+      userId = user.uid;
+    } else {
+      // User has signed out
+      userId = undefined;
+    }
+  });
 }

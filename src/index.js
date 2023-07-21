@@ -61,9 +61,8 @@ export async function main() {
     "#difficulty-total-votes"
   );
 
-  // ↓この科目番号をURLからとかHTMLからとか何らかの方法で持ってきたい
-  const path = location.pathname.split('/');
-  const courseId = path[3];
+  const path = location.pathname.split("/");
+  const courseId = path[3]; // URLから取得した科目番号
   const ratings = await getRatings(courseId);
 
   // 一旦DBへのアクセスを減らしたいのでダミーデータを直接ここに書いておく

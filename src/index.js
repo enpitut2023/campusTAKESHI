@@ -284,7 +284,7 @@ export async function main() {
     hoverOfAssignmentDifficulty[i].addEventListener("mouseout",  () => offHover(i, 1));
     hoverOfAssignmentDifficulty[i].addEventListener("mouseover", () => onHover(i, 1));
   }
-  for(let i=0;i<9;i++){
+  for(let i=0;i<10;i++){
     labelElements[i].addEventListener("click", () => radioClick(i));
   }
 }

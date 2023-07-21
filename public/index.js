@@ -10,28 +10,44 @@ function countKindness(ratings) {
   let totalCriterion = 0;
   let sumCriterion = 0;
   for (let cri of ratings) {
-    if (cri.criterion == 'teacher-kindness') {
+    if (cri.criterion == "teacher-kindness") {
       totalCriterion += cri.value;
       sumCriterion += 1;
     }
   }
-  let aveCriterion = round(totalCriterion/sumCriterion);
-  let dict = {criterion:aveCriterion, sum:sumCriterion}
-  return dict
+  let aveCriterion;
+  let labelContent;
+  if (sumCriterion == 0) {
+    aveCriterion = 0;
+    labelContent = "票なし";
+  } else {
+    aveCriterion = round(totalCriterion / sumCriterion);
+    labelContent = aveCriterion;
+  }
+  let dict = { criterion: aveCriterion, sum: sumCriterion, labelContent: labelContent };
+  return dict;
 }
 
 function countDifficulty(ratings) {
   let totalCriterion = 0;
   let sumCriterion = 0;
   for (let cri of ratings) {
-    if (cri.criterion == 'assignment-difficulty') {
+    if (cri.criterion == "assignment-difficulty") {
       totalCriterion += cri.value;
       sumCriterion += 1;
     }
   }
-  let aveCriterion = round(totalCriterion/sumCriterion);
-  let dict = {criterion:aveCriterion, sum:sumCriterion}
-  return dict
+  let aveCriterion;
+  let labelContent;
+  if (sumCriterion == 0) {
+    aveCriterion = 0;
+    labelContent = "票なし";
+  } else {
+    aveCriterion = round(totalCriterion / sumCriterion);
+    labelContent = aveCriterion;
+  }
+  let dict = { criterion: aveCriterion, sum: sumCriterion, labelContent: labelContent };
+  return dict;
 }
 
 const kindnessRatingValue = document.querySelector("#kindness-rating-value");
@@ -161,14 +177,16 @@ async function main() {
   const difficultyCriterion = countDifficulty(ratings);
 
   let kindness = kindnessCriterion.criterion;
-  let kindnesstotal = kindnessCriterion.sum;
+  let kindnessTotal = kindnessCriterion.sum;
+  let kindnessExist = kindnessCriterion.labelContent;
   let difficulty = difficultyCriterion.criterion;
-  let difficultytotal = difficultyCriterion.sum;
+  let difficultyTotal = difficultyCriterion.sum;
+  let difficultyExist = difficultyCriterion.labelContent;
 
-  kindnessRatingValue.innerHTML = `${kindness}`;
-  difficultyRatingValue.innerHTML = `${difficulty}`;
-  kindnessTotalVotes.innerHTML = `計${kindnesstotal}票`;
-  difficultyTotalVotes.innerHTML = `計${difficultytotal}票`;
+  kindnessRatingValue.innerHTML = `${kindnessExist}`;
+  difficultyRatingValue.innerHTML = `${difficultyExist}`;
+  kindnessTotalVotes.innerHTML = `計${kindnessTotal}票`;
+  difficultyTotalVotes.innerHTML = `計${difficultyTotal}票`;
 
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);

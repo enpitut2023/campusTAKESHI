@@ -6,7 +6,7 @@
   --star-color: #dbdbd9;
   --star-background: #f0bc43;
 }
-.txt{
+.txt {
   font-size: 20px;
 }
 .rate-form input[type=radio] {
@@ -50,19 +50,19 @@
   font-size: var(--star-size);
   font-family: Times;
   line-height: 1;
-} 
-.total-votes{
+}
+.total-votes {
   font-size: 15px;
 }
 
 .stars::after {
   content: "★★★★★";
   letter-spacing: 3px;
-  background: linear-gradient( 
+  background: linear-gradient(
     90deg,
     var(--star-background) var(--percent),
     var(--star-color) var(--percent)
-   );
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 } 

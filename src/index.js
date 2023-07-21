@@ -53,8 +53,8 @@ export async function main() {
     .rate-form {
       display: inline;;
     }
-    
-    
+
+
     .hover{
       position: relative;
       padding: 0 3px;
@@ -70,10 +70,10 @@ export async function main() {
       color: #f0bc43;
     }
     .offhover{
-    
+
       color: #dbdbd9;
     }
-    
+
     .rating{
       font-size: 20px;
       margin-right: 40px;
@@ -81,7 +81,7 @@ export async function main() {
     .rating-value{
       font-size: 20px;
     }
-    
+
     .stars {
       --percent: calc(var(--rating) / 5 * 100%);
       display: inline-block;
@@ -92,7 +92,7 @@ export async function main() {
     .total-votes {
       font-size: 15px;
     }
-    
+
     .stars::after {
       content: "★★★★★";
       letter-spacing: 3px;
@@ -107,7 +107,7 @@ export async function main() {
     .rating{
       display: inline;
     }
-    
+
     </style>
   `);
   document.head.appendChild(styleElement);
@@ -194,7 +194,6 @@ export async function main() {
 
   console.log("teacherKindnessRatings", teacherKindnessRatings);
   console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
-  
 
   const kindnessCriterion = countCriterion(teacherKindnessRatings);
   const difficultyCriterion = countCriterion(assignmentDifficultyRatings);
@@ -214,77 +213,85 @@ export async function main() {
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);
 
-  
-  const hoverOfTeacherKindness = [...document.querySelectorAll("#rate-form-teacher-kindness .hover")];
-  const hoverOfAssignmentDifficulty = [...document.querySelectorAll("#rate-form-assignment-difficulty .hover")];
+  const hoverOfTeacherKindness = [
+    ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),
+  ];
+  const hoverOfAssignmentDifficulty = [
+    ...document.querySelectorAll("#rate-form-assignment-difficulty .hover"),
+  ];
   const labelElements = [...document.querySelectorAll(".rate-form label")];
   console.log(labelElements);
-  
-  function onHover(i, nthForm){
+
+  function onHover(i, nthForm) {
     let changeTarget;
-    if(nthForm){
+    if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
-    }
-    else{
+    } else {
       changeTarget = hoverOfTeacherKindness;
     }
     for (let index = 0; index <= i; index++) {
-      changeTarget[index].classList.add('onhover');
-      changeTarget[index].classList.remove('offhover');
+      changeTarget[index].classList.add("onhover");
+      changeTarget[index].classList.remove("offhover");
     }
   }
-  
-  function offHover(i, nthForm){
+
+  function offHover(i, nthForm) {
     let changeTarget;
-    if(nthForm){
+    if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
-    }
-    else{
+    } else {
       changeTarget = hoverOfTeacherKindness;
     }
     for (let index = 0; index <= i; index++) {
-      changeTarget[index].classList.remove('onhover');
-      
+      changeTarget[index].classList.remove("onhover");
+
       let ok = 1;
       for (const classElement of changeTarget[index].classList) {
-        if(classElement == 'checked')ok = 0;
+        if (classElement == "checked") ok = 0;
       }
-      if(ok){
-        changeTarget[index].classList.add('offhover');
+      if (ok) {
+        changeTarget[index].classList.add("offhover");
       }
     }
   }
 
-  function radioClick(i){
-    let value = i%5+1;
-    let nthForm = Math.trunc(i/5);
-  
-    console.log("value:", value , "nthForm=", nthForm);
-    
+  function radioClick(i) {
+    let value = (i % 5) + 1;
+    let nthForm = Math.trunc(i / 5);
+
+    console.log("value:", value, "nthForm=", nthForm);
+
     let changeTarget;
-    if(nthForm){
+    if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
-    }
-    else{
+    } else {
       changeTarget = hoverOfTeacherKindness;
     }
-    changeTarget[value-1].checked = "checked";
-    for (let index = 0; index <= value-1; index++) {
-      changeTarget[index].classList.add('checked');
+    changeTarget[value - 1].checked = "checked";
+    for (let index = 0; index <= value - 1; index++) {
+      changeTarget[index].classList.add("checked");
     }
     for (let index = value; index <= 4; index++) {
-      changeTarget[index].classList.remove('checked');
-      changeTarget[index].classList.add('offhover');
+      changeTarget[index].classList.remove("checked");
+      changeTarget[index].classList.add("offhover");
     }
   }
 
-  for (let i=0;i<5;i++) {
-    hoverOfTeacherKindness[i].addEventListener("mouseout",  () => offHover(i, 0));
-    hoverOfTeacherKindness[i].addEventListener("mouseover", () => onHover(i, 0));
-    hoverOfAssignmentDifficulty[i].addEventListener("mouseout",  () => offHover(i, 1));
-    hoverOfAssignmentDifficulty[i].addEventListener("mouseover", () => onHover(i, 1));
+  for (let i = 0; i < 5; i++) {
+    hoverOfTeacherKindness[i].addEventListener("mouseout", () =>
+      offHover(i, 0)
+    );
+    hoverOfTeacherKindness[i].addEventListener("mouseover", () =>
+      onHover(i, 0)
+    );
+    hoverOfAssignmentDifficulty[i].addEventListener("mouseout", () =>
+      offHover(i, 1)
+    );
+    hoverOfAssignmentDifficulty[i].addEventListener("mouseover", () =>
+      onHover(i, 1)
+    );
   }
-  for(let i=0;i<10;i++){
+  for (let i = 0; i < 10; i++) {
     labelElements[i].addEventListener("click", () => radioClick(i));
   }
 }

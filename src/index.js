@@ -259,7 +259,6 @@ export async function main() {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
-    courseId
     if (nthForm == 0){
     submitTeacherKindness(courseId,value);
     }

@@ -87,7 +87,7 @@ export async function main() {
   const kindnessElement = stringToHtmlElement(`
     <div class="rating" >
       <span class="rating-label">先生の優しさ:</span>
-      <span class="rating-value" id="kindness-rating-value">2.4</span>
+      <span class="rating-value" id="kindness-rating-value"></span>
       <span class="stars" id="kindness-rating-star"></span>
       <span class="total-votes" id="kindness-total-votes"></span>
     </div>
@@ -95,7 +95,7 @@ export async function main() {
   const difficultyElement = stringToHtmlElement(`
     <div class="rating">
       <span class="rating-label">課題の難しさ:</span>
-      <span class="rating-value" id="difficulty-rating-value">1.0</span>
+      <span class="rating-value" id="difficulty-rating-value"></span>
       <span class="stars" id="difficulty-rating-star"></span>
       <span class="total-votes" id="difficulty-total-votes"></span>
     </div>

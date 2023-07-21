@@ -12,40 +12,12 @@ function round(value) {
   return ret;
 }
 
-function countKindness(ratings) {
+function countCriterion(ratings) {
   let totalCriterion = 0;
   let sumCriterion = 0;
-  for (let cri of ratings) {
-    if (cri.criterion == "teacher-kindness") {
-      totalCriterion += cri.value;
-      sumCriterion += 1;
-    }
-  }
-  let aveCriterion;
-  let labelContent;
-  if (sumCriterion == 0) {
-    aveCriterion = 0;
-    labelContent = "票なし";
-  } else {
-    aveCriterion = round(totalCriterion / sumCriterion);
-    labelContent = aveCriterion;
-  }
-  let dict = {
-    criterion: aveCriterion,
-    sum: sumCriterion,
-    labelContent: labelContent,
-  };
-  return dict;
-}
-
-function countDifficulty(ratings) {
-  let totalCriterion = 0;
-  let sumCriterion = 0;
-  for (let cri of ratings) {
-    if (cri.criterion == "assignment-difficulty") {
-      totalCriterion += cri.value;
-      sumCriterion += 1;
-    }
+  for (let rating of ratings) {
+    totalCriterion += rating.value;
+    sumCriterion += 1;
   }
   let aveCriterion;
   let labelContent;
@@ -162,8 +134,8 @@ export async function main() {
   console.log("teacherKindnessRatings", teacherKindnessRatings);
   console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
 
-  const kindnessCriterion = countKindness(ratings);
-  const difficultyCriterion = countDifficulty(ratings);
+  const kindnessCriterion = countCriterion(teacherKindnessRatings);
+  const difficultyCriterion = countCriterion(assignmentDifficultyRatings);
 
   let kindness = kindnessCriterion.criterion;
   let kindnessTotal = kindnessCriterion.sum;

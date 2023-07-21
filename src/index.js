@@ -36,16 +36,78 @@ function countDifficulty(ratings) {
 
 // 拡張機能が読み込まれたら最初に実行される関数
 export async function main() {
-  // 文字列からHTMLの要素を作りましょう
-  const exampleElement = stringToHtmlElement(`
-    <p id="example-id" class="example-class" style="color: red; font-size: 32px">
-      Hello world!
-    </p>
+  const styleElement = stringToHtmlElement(`
+    <style>
+    :root {
+      --star-size: 40px;
+      --star-color: #dbdbd9;
+      --star-background: #f0bc43;
+    }
+    .txt {
+      font-size: 20px;
+    }
+    .rating {
+      font-size: 20px;
+      margin-right: 40px;
+    }
+    .rating-value {
+      font-size: 30px;
+    }
+    
+    .stars {
+      --percent: calc(var(--rating) / 5 * 100%);
+      display: inline-block;
+      font-size: var(--star-size);
+      font-family: Times;
+      line-height: 1;
+    }
+    .total-votes {
+      font-size: 15px;
+    }
+    
+    .stars::after {
+      content: "★★★★★";
+      letter-spacing: 3px;
+      background: linear-gradient(
+        90deg,
+        var(--star-background) var(--percent),
+        var(--star-color) var(--percent)
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .rating {
+      display: inline;
+    }
+    
+    </style>
   `);
+  document.head.appendChild(styleElement);
+
+  // 文字列からHTMLの要素を作りましょう
+  const kindnessElement = stringToHtmlElement(`
+  
+  <div class="rating" >
+  <span class="rating-label">先生の優しさ:</span>
+  <span class="rating-value" id="kindness-rating-value">2.4</span>
+  <span class="stars" id="kindness-rating-star"></span>
+  <span class="total-votes" id="kindness-total-votes"></span>
+</div>
+  `);
+ const difficultyElement = stringToHtmlElement(`
+  <div class="rating">
+  <span class="rating-label">課題の難しさ:</span>
+  <span class="rating-value" id="difficulty-rating-value">1.0</span>
+  <span class="stars" id="difficulty-rating-star"></span>
+  <span class="total-votes" id="difficulty-total-votes"></span>
+</div>
+  `);
+
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
   // course-titleの次の要素としてexampleElementを追加してみましょう
-  courseTitleElement.insertAdjacentElement("afterend", exampleElement);
+  courseTitleElement.insertAdjacentElement("afterend", difficultyElement);
+  courseTitleElement.insertAdjacentElement("afterend", kindnessElement);
 
   // ↓これをやってみて
   const kindnessRatingValue = document.querySelector("#kindness-rating-value");

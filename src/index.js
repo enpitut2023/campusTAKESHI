@@ -24,7 +24,11 @@ function countKindness(ratings) {
     aveCriterion = round(totalCriterion / sumCriterion);
     labelContent = aveCriterion;
   }
-  let dict = { criterion: aveCriterion, sum: sumCriterion, labelContent: labelContent };
+  let dict = {
+    criterion: aveCriterion,
+    sum: sumCriterion,
+    labelContent: labelContent,
+  };
   return dict;
 }
 
@@ -46,7 +50,11 @@ function countDifficulty(ratings) {
     aveCriterion = round(totalCriterion / sumCriterion);
     labelContent = aveCriterion;
   }
-  let dict = { criterion: aveCriterion, sum: sumCriterion, labelContent: labelContent };
+  let dict = {
+    criterion: aveCriterion,
+    sum: sumCriterion,
+    labelContent: labelContent,
+  };
   return dict;
 }
 

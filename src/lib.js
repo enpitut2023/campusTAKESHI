@@ -31,22 +31,37 @@ let userId = undefined;
 
 /**
  * @typedef {object} Rating
- * @property {string} uid ユーザーID
  * @property {number} value 星の数 (1~5の整数)
- * @property {string} criterion 評価基準
  */
+
+/**
+ * @param {string} courseId
+ * @param {string} collectionName
+ * @returns {Promise<Rating[]>}
+ */
+async function getRatings(courseId, collectionName) {
+  const ratings = collection(db, "courses", courseId, collectionName);
+  const snapshot = await getDocs(ratings);
+  return snapshot.docs.map((e) => e.data());
+}
 
 /**
  * @param {string} courseId 科目番号
  * @returns {Promise<Rating[]>}
  */
-export async function getRatings(courseId) {
-  const ratings = collection(db, "courses", courseId, "ratings");
-  const snapshot = await getDocs(ratings);
-  return snapshot.docs.map((e) => e.data());
+export async function getTeacherKindnessRatings(courseId) {
+  return await getRatings(courseId, "teacher-kindness-ratings");
 }
 
-export async function submitRating(courseId, value, collectionName) {
+/**
+ * @param {string} courseId 科目番号
+ * @returns {Promise<Rating[]>}
+ */
+export async function getAssignmentDifficultyRatings(courseId) {
+  return await getRatings(courseId, "assignment-difficulty-ratings");
+}
+
+async function submitRating(courseId, value, collectionName) {
   if (userId === undefined) {
     throw new Error("userId is undefined");
   }

@@ -1,6 +1,7 @@
 import { initializeApp } from "./vendor/firebase-app.js";
 import {
   doc,
+  getDoc,
   getDocs,
   collection,
   getFirestore,
@@ -59,6 +60,37 @@ export async function getTeacherKindnessRatings(courseId) {
  */
 export async function getAssignmentDifficultyRatings(courseId) {
   return await getRatings(courseId, "assignment-difficulty-ratings");
+}
+
+/**
+ * @param {string} courseId
+ * @param {string} collectionName
+ * @returns {Promise<Rating>}
+ */
+async function getUserRating(courseId, collectionName) {
+  if (userId === undefined) {
+    throw new Error("userId is undefined");
+  }
+
+  const ratings = doc(db, "courses", courseId, collectionName, userId);
+  const snapshot = await getDoc(ratings);
+  return snapshot.data().value;
+}
+
+/**
+ * @param {string} courseId
+ * @returns {Promise<Rating>}
+ */
+export async function getUserTeacherKindnessRating(courseId) {
+  return await getUserRating(courseId, "teacher-kindness-ratings");
+}
+
+/**
+ * @param {string} courseId
+ * @returns {Promise<Rating>}
+ */
+export async function getUserAssignmentDifficultyRating(courseId) {
+  return await getUserRating(courseId, "assignment-difficulty-ratings");
 }
 
 async function submitRating(courseId, value, collectionName) {

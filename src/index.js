@@ -1,6 +1,8 @@
 import {
   getTeacherKindnessRatings,
   getAssignmentDifficultyRatings,
+  getUserTeacherKindnessRating,
+  getUserAssignmentDifficultyRating,
   submitTeacherKindness,
   submitAssignmentDifficulty,
   stringToHtmlElement,

@@ -15,8 +15,16 @@ function countKindness(ratings) {
       sumCriterion += 1;
     }
   }
-  let aveCriterion = round(totalCriterion / sumCriterion);
-  let dict = { criterion: aveCriterion, sum: sumCriterion };
+  let aveCriterion;
+  let booCriterion;
+  if (sumCriterion == 0) {
+    aveCriterion = 0;
+    booCriterion = "票なし";
+  } else {
+    aveCriterion = round(totalCriterion / sumCriterion);
+    booCriterion = aveCriterion;
+  }
+  let dict = { criterion: aveCriterion, sum: sumCriterion, boo: booCriterion };
   return dict;
 }
 
@@ -29,8 +37,16 @@ function countDifficulty(ratings) {
       sumCriterion += 1;
     }
   }
-  let aveCriterion = round(totalCriterion / sumCriterion);
-  let dict = { criterion: aveCriterion, sum: sumCriterion };
+  let aveCriterion;
+  let booCriterion;
+  if (sumCriterion == 0) {
+    aveCriterion = 0;
+    booCriterion = "票なし";
+  } else {
+    aveCriterion = round(totalCriterion / sumCriterion);
+    booCriterion = aveCriterion;
+  }
+  let dict = { criterion: aveCriterion, sum: sumCriterion, boo: booCriterion };
   return dict;
 }
 
@@ -54,11 +70,13 @@ async function main() {
 
   let kindness = kindnessCriterion.criterion;
   let kindnessTotal = kindnessCriterion.sum;
+  let kindnessExist = kindnessCriterion.boo;
   let difficulty = difficultyCriterion.criterion;
   let difficultyTotal = difficultyCriterion.sum;
+  let difficultyExist = difficultyCriterion.boo;
 
-  kindnessRatingValue.innerHTML = `${kindness}`;
-  difficultyRatingValue.innerHTML = `${difficulty}`;
+  kindnessRatingValue.innerHTML = `${kindnessExist}`;
+  difficultyRatingValue.innerHTML = `${difficultyExist}`;
   kindnessTotalVotes.innerHTML = `計${kindnessTotal}票`;
   difficultyTotalVotes.innerHTML = `計${difficultyTotal}票`;
 

@@ -2,19 +2,46 @@
 /* 評価を表示する機能のCSS */
 /* //////////////////// */
 :root {
-  --star-size: 40px;
+  --star-size: 30px;
   --star-color: #dbdbd9;
   --star-background: #f0bc43;
 }
 .txt {
   font-size: 20px;
 }
-.rating {
+.rate-form input[type=radio] {
+  display: none;
+}
+.rate-form {
+  display: inline;;
+}
+
+
+.hover{
+  position: relative;
+  padding: 0 3px;
+  font-size: 30px;
+}
+.checked{
+  position: relative;
+  padding: 0 3px;
+  font-size: 30px;
+  color: #f0bc43;
+}
+.onhover{
+  color: #f0bc43;
+}
+.offhover{
+
+  color: #dbdbd9;
+}
+
+.rating{
   font-size: 20px;
   margin-right: 40px;
 }
-.rating-value {
-  font-size: 30px;
+.rating-value{
+  font-size: 20px;
 }
 
 .stars {
@@ -38,8 +65,7 @@
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-.rating {
-  /* display: inline-block; */
+} 
+.rating{
   display: inline;
 }

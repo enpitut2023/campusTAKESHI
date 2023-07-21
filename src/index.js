@@ -1,4 +1,10 @@
-import { getRatings, stringToHtmlElement } from "./lib.js";
+import {
+  getTeacherKindnessRatings,
+  getAssignmentDifficultyRatings,
+  submitTeacherKindness,
+  submitAssignmentDifficulty,
+  stringToHtmlElement,
+} from "./lib.js";
 
 function round(value) {
   let ret;
@@ -131,7 +137,6 @@ export async function main() {
   courseTitleElement.insertAdjacentElement("afterend", difficultyElement);
   courseTitleElement.insertAdjacentElement("afterend", kindnessElement);
 
-  // ↓これをやってみて
   const kindnessRatingValue = document.querySelector("#kindness-rating-value");
   const kindnessRatingStar = document.querySelector("#kindness-rating-star");
   const difficultyRatingValue = document.querySelector(
@@ -147,43 +152,15 @@ export async function main() {
 
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
-  const ratings = await getRatings(courseId);
 
-  // 一旦DBへのアクセスを減らしたいのでダミーデータを直接ここに書いておく
-  // const ratings = [
-  //   {
-  //     uid: "456",
-  //     value: 2,
-  //     criterion: "teacher-kindness",
-  //   },
-  //   {
-  //     uid: "111",
-  //     value: 2,
-  //     criterion: "teacher-kindness",
-  //   },
-  //   {
-  //     uid: "222",
-  //     value: 1,
-  //     criterion: "teacher-kindness",
-  //   },
-  //   {
-  //     uid: "123",
-  //     value: 3,
-  //     criterion: "teacher-kindness",
-  //   },
-  //   {
-  //     uid: "111",
-  //     value: 4,
-  //     criterion: "assignment-difficulty",
-  //   },
-  //   {
-  //     uid: "123",
-  //     value: 5,
-  //     criterion: "assignment-difficulty",
-  //   },
-  // ];
+  const [teacherKindnessRatings, assignmentDifficultyRatings] =
+    await Promise.all([
+      getTeacherKindnessRatings(courseId),
+      getAssignmentDifficultyRatings(courseId),
+    ]);
 
-  console.log(ratings);
+  console.log("teacherKindnessRatings", teacherKindnessRatings);
+  console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
 
   const kindnessCriterion = countKindness(ratings);
   const difficultyCriterion = countDifficulty(ratings);

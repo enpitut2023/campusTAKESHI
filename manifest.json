@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Takeshi The Syllabus Nitpicker",
+  "version": "1.0",
+  "description": "Takeshi is not satisfied with the syllabi that the professors have written",
+  "content_scripts": [
+    {
+      "js": ["src/content_script.js"],
+      "matches": ["https://kdb.tsukuba.ac.jp/syllabi/*"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["src/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

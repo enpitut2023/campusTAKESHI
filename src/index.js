@@ -61,43 +61,43 @@ export async function main() {
     "#difficulty-total-votes"
   );
 
-  // ↓この科目番号をURLからとかHTMLからとか何らかの方法で持ってきたい
-  // const courseId = "GB13614";
-  // const ratings = await getRatings(courseId);
+  const path = location.pathname.split("/");
+  const courseId = path[3]; // URLから取得した科目番号
+  const ratings = await getRatings(courseId);
 
   // 一旦DBへのアクセスを減らしたいのでダミーデータを直接ここに書いておく
-  const ratings = [
-    {
-      uid: "456",
-      value: 2,
-      criterion: "teacher-kindness",
-    },
-    {
-      uid: "111",
-      value: 2,
-      criterion: "teacher-kindness",
-    },
-    {
-      uid: "222",
-      value: 1,
-      criterion: "teacher-kindness",
-    },
-    {
-      uid: "123",
-      value: 3,
-      criterion: "teacher-kindness",
-    },
-    {
-      uid: "111",
-      value: 4,
-      criterion: "assignment-difficulty",
-    },
-    {
-      uid: "123",
-      value: 5,
-      criterion: "assignment-difficulty",
-    },
-  ];
+  // const ratings = [
+  //   {
+  //     uid: "456",
+  //     value: 2,
+  //     criterion: "teacher-kindness",
+  //   },
+  //   {
+  //     uid: "111",
+  //     value: 2,
+  //     criterion: "teacher-kindness",
+  //   },
+  //   {
+  //     uid: "222",
+  //     value: 1,
+  //     criterion: "teacher-kindness",
+  //   },
+  //   {
+  //     uid: "123",
+  //     value: 3,
+  //     criterion: "teacher-kindness",
+  //   },
+  //   {
+  //     uid: "111",
+  //     value: 4,
+  //     criterion: "assignment-difficulty",
+  //   },
+  //   {
+  //     uid: "123",
+  //     value: 5,
+  //     criterion: "assignment-difficulty",
+  //   },
+  // ];
 
   console.log(ratings);
 

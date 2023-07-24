@@ -1,6 +1,7 @@
 import {
   getTeacherKindnessRatings,
   getAssignmentDifficultyRatings,
+  getComments,
   submitTeacherKindness,
   submitAssignmentDifficulty,
   stringToHtmlElement,
@@ -217,6 +218,7 @@ export async function main() {
     await Promise.all([
       getTeacherKindnessRatings(courseId),
       getAssignmentDifficultyRatings(courseId),
+      getComments(courseId),
     ]);
 
   console.log("teacherKindnessRatings", teacherKindnessRatings);
@@ -240,28 +242,28 @@ export async function main() {
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);
 
-  // DBから持ってきたコメントからHTML生成する箇所始まり
-  // DBから持ってきたコメントのデータのダミー
-  const comments = [
-    {
-      uid: "987654",
-      quote: "各授業で課す演習課題をレポートとして提出すること。 ",
-      content: "毎週1000語のレポートです。しんどい",
-      created_at: new Date("2023-01-03"),
-    },
-    {
-      uid: "ABCDEFG",
-      quote: "講義（50%）と演習（50%）を併用する。",
-      content: "講義0%と演習100%でした",
-      created_at: new Date("2023-01-02"),
-    },
-    {
-      uid: "123456",
-      quote: "講義（50%）と演習（50%）を併用する。",
-      content: "テスト",
-      created_at: new Date("2023-01-01"),
-    },
-  ];
+  // // DBから持ってきたコメントからHTML生成する箇所始まり
+  // // DBから持ってきたコメントのデータのダミー
+  // const comments = [
+  //   {
+  //     uid: "987654",
+  //     quote: "各授業で課す演習課題をレポートとして提出すること。 ",
+  //     content: "毎週1000語のレポートです。しんどい",
+  //     created_at: new Date("2023-01-03"),
+  //   },
+  //   {
+  //     uid: "ABCDEFG",
+  //     quote: "講義（50%）と演習（50%）を併用する。",
+  //     content: "講義0%と演習100%でした",
+  //     created_at: new Date("2023-01-02"),
+  //   },
+  //   {
+  //     uid: "123456",
+  //     quote: "講義（50%）と演習（50%）を併用する。",
+  //     content: "テスト",
+  //     created_at: new Date("2023-01-01"),
+  //   },
+  // ];
 
   function display(comments) {
     let htmlContent = [];

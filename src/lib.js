@@ -89,6 +89,37 @@ export async function submitAssignmentDifficulty(courseId, value) {
 }
 
 /**
+ * @typedef {object} Comment
+ * @property {string} uid
+ * @property {string} quote
+ * @property {string} content
+ * @property {Date} createdAt
+ */
+
+/**
+ * @param {unknown} data
+ * @returns {Comment}
+ */
+function parseComment(data) {
+  return {
+    uid: data.uid,
+    quote: data.quote,
+    content: data.content,
+    createdAt: data.created_at.toDate(),
+  };
+}
+
+/**
+ * @param {string} courseId 科目番号
+ * @returns {Promise<Comment>}
+ */
+export async function getComments(courseId) {
+  const ratings = collection(db, "courses", courseId, "comments");
+  const snapshot = await getDocs(ratings);
+  return snapshot.docs.map((e) => parseComment(e.data()));
+}
+
+/**
  * "<h1>hello</h1>" みたいな文字列からHTMLの要素を生成する。
  *
  * 感覚的な説明：

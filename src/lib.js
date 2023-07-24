@@ -6,6 +6,8 @@ import {
   getFirestore,
   setDoc,
   addDoc,
+  query,
+  orderBy,
 } from "./vendor/firebase-firestore.js";
 import {
   onAuthStateChanged,
@@ -111,12 +113,14 @@ function parseComment(data) {
 }
 
 /**
+ * 日付の降順にコメント一覧を取得する。
  * @param {string} courseId 科目番号
  * @returns {Promise<Comment>}
  */
 export async function getComments(courseId) {
   const ratings = collection(db, "courses", courseId, "comments");
-  const snapshot = await getDocs(ratings);
+  const q = query(ratings, orderBy("created_at", "desc"));
+  const snapshot = await getDocs(q);
   return snapshot.docs.map((e) => parseComment(e.data()));
 }
 
@@ -135,6 +139,12 @@ export async function submitComment(courseId, quote, content) {
   }
   if (typeof content !== "string") {
     throw new Error("`content` must be a string");
+  }
+
+  quote = quote.trim();
+  content = content.trim();
+  if (content === "") {
+    throw new Error("`content` cannot be empty");
   }
 
   const comments = collection(db, "courses", courseId, "comments");

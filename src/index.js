@@ -115,6 +115,7 @@ export async function main() {
       height: 200px;
       overflow-y: scroll;
       border: 1px solid #0b0b0b;
+      resize: vertical;
     }
 
     .comment {
@@ -189,14 +190,10 @@ export async function main() {
     </div>
   `);
   const button = stringToHtmlElement(`
-  <div>
     <button id ="show-form" type="button">
-    コメントを投稿
+      コメントを投稿
     </button>
-    <p id="yuiitumuni"></p>
-  </div>
   `);
-
 
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
@@ -281,9 +278,14 @@ export async function main() {
     const month = comment.createdAt.getMonth() + 1;
     const date = comment.createdAt.getDate();
 
+    const quoteHtml =
+      comment.quote.trim() === ""
+        ? ""
+        : `<h2 class="quote">引用：「${escapeHtml(comment.quote)}」</h2>`;
+
     const commentHtml = `
         <div class="comment">
-          <h2 class="quote">${escapeHtml(comment.quote)}</h2>
+          ${quoteHtml}
           <p>${escapeHtml(comment.content)}</p>
           <p class="date">${year}/${month}/${date}</p>
         </div>
@@ -381,40 +383,37 @@ export async function main() {
     labelElements[i].addEventListener("click", () => radioClick(i));
   }
   //コメントフォームを表示するためのボタン
-  const showForm = document.querySelector('#show-form');
+  const showForm = document.querySelector("#show-form");
   const commentForm = stringToHtmlElement(`
   <form id="claim-form">
   <div>
-    <label for="quote-from-syllabus">引用</label><br>
-    <input id="i_furigana" type="text" name="quote" value="" placeholder="引用">
+    <label for="quote-from-syllabus">引用 (任意、シラバスの一部をコピペしてください)</label><br>
+    <input id="i_furigana" type="text" name="quote" value="" placeholder="例：講義（50%）と演習（50%）を併用する。" style="width: 100%">
   </div>
   <div>
-    <label for="claim-for-syllabus">文句の叫び</label><br>
-    <textarea id="claim-for-syllabus" name="comment" placeholder="叫べ！"></textarea>
+    <label for="claim-for-syllabus">本文</label><br>
+    <textarea id="claim-for-syllabus" name="comment" placeholder="例：講義0%と演習100%でした" style="width: 100%; height: 10ch"></textarea>
   </div>
   <div class="btn_area">
-    <input type="submit" name="shout" value="叫ぶ">
+    <input type="submit" name="shout" value="投稿">
   </div>
   </form>
   `);
-  const insertFormPosition = document.querySelector("#yuiitumuni");
   function handleShowButton(event) {
-    insertFormPosition.insertAdjacentElement("beforeend", commentForm);
+    showForm.insertAdjacentElement("afterend", commentForm);
   }
-  
+
   showForm.addEventListener("click", handleShowButton);
-  
+
   //コメントが投稿された時に内容を受け取る
-  function handleCommentForm(event) {
+  async function handleCommentForm(event) {
     // 再読み込み防止
     event.preventDefault();
-    let inputComment = commentForm.comment.value;
-    let inputQuote = commentForm.quote.value;
-    console.log(inputQuote);
-    console.log(inputComment);
+    showForm.value = "投稿中...";
+    const inputComment = commentForm.comment.value;
+    const inputQuote = commentForm.quote.value;
+    await submitComment(courseId, inputQuote, inputComment);
+    window.location.reload();
   }
   commentForm.addEventListener("submit", handleCommentForm);
-  
-
-
 }

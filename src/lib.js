@@ -5,6 +5,7 @@ import {
   collection,
   getFirestore,
   setDoc,
+  addDoc,
 } from "./vendor/firebase-firestore.js";
 import {
   onAuthStateChanged,
@@ -117,6 +118,32 @@ export async function getComments(courseId) {
   const ratings = collection(db, "courses", courseId, "comments");
   const snapshot = await getDocs(ratings);
   return snapshot.docs.map((e) => parseComment(e.data()));
+}
+
+/**
+ * @param {string} courseId 科目番号
+ * @param {string} quote 引用
+ * @param {string} content コメント内容
+ * @returns {Promise<void>}
+ */
+export async function submitComment(courseId, quote, content) {
+  if (userId === undefined) {
+    throw new Error("userId is undefined");
+  }
+  if (typeof quote !== "string") {
+    throw new Error("`quote` must be a string");
+  }
+  if (typeof content !== "string") {
+    throw new Error("`content` must be a string");
+  }
+
+  const comments = collection(db, "courses", courseId, "comments");
+  await addDoc(comments, {
+    uid: userId,
+    quote,
+    content,
+    created_at: new Date(),
+  });
 }
 
 /**

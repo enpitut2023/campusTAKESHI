@@ -6,6 +6,7 @@ import {
   submitAssignmentDifficulty,
   stringToHtmlElement,
   escapeHtml,
+  submitComment,
 } from "./lib.js";
 function round(value) {
   let ret;

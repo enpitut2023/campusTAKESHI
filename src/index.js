@@ -188,10 +188,20 @@ export async function main() {
     <div class="comment-container">      
     </div>
   `);
+  const button = stringToHtmlElement(`
+  <div>
+    <button id ="show-form" type="button">
+    コメントを投稿
+    </button>
+    <p id="yuiitumuni"></p>
+  </div>
+  `);
+
 
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
   // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
+  courseTitleElement.insertAdjacentElement("afterend", button);
   courseTitleElement.insertAdjacentElement("afterend", commentContainerElement);
   courseTitleElement.insertAdjacentElement("afterend", difficultyVoteSystem);
   courseTitleElement.insertAdjacentElement("afterend", difficultyElement);
@@ -326,7 +336,6 @@ export async function main() {
       }
     }
   }
-
   function radioClick(i) {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
@@ -337,8 +346,8 @@ export async function main() {
       submitAssignmentDifficulty(courseId, value);
     }
     console.log("value:", value, "nthForm=", nthForm);
-
     let changeTarget;
+
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
     } else {
@@ -371,4 +380,41 @@ export async function main() {
   for (let i = 0; i < 10; i++) {
     labelElements[i].addEventListener("click", () => radioClick(i));
   }
+  //コメントフォームを表示するためのボタン
+  const showForm = document.querySelector('#show-form');
+  const commentForm = stringToHtmlElement(`
+  <form id="claim-form">
+  <div>
+    <label for="quote-from-syllabus">引用</label><br>
+    <input id="i_furigana" type="text" name="quote" value="" placeholder="引用">
+  </div>
+  <div>
+    <label for="claim-for-syllabus">文句の叫び</label><br>
+    <textarea id="claim-for-syllabus" name="comment" placeholder="叫べ！"></textarea>
+  </div>
+  <div class="btn_area">
+    <input type="submit" name="shout" value="叫ぶ">
+  </div>
+  </form>
+  `);
+  const insertFormPosition = document.querySelector("#yuiitumuni");
+  function handleShowButton(event) {
+    insertFormPosition.insertAdjacentElement("beforeend", commentForm);
+  }
+  
+  showForm.addEventListener("click", handleShowButton);
+  
+  //コメントが投稿された時に内容を受け取る
+  function handleCommentForm(event) {
+    // 再読み込み防止
+    event.preventDefault();
+    let inputComment = commentForm.comment.value;
+    let inputQuote = commentForm.quote.value;
+    console.log(inputQuote);
+    console.log(inputComment);
+  }
+  commentForm.addEventListener("submit", handleCommentForm);
+  
+
+
 }

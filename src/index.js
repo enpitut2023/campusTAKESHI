@@ -259,22 +259,22 @@ export async function main() {
     </div>
   `);
   const commentContainerElement = stringToHtmlElement(`
-    <div class="comment-container"></div>
+    <div class="comment-container" style="display: none"></div>
   `);
-  const button = stringToHtmlElement(`
-    <button id ="show-form" type="button">
-      コメントを投稿
-    </button>
-  `);
-  const feedbackAnchor = stringToHtmlElement(`
-    <a style="margin-left: 10px" href="https://docs.google.com/forms/d/e/1FAIpQLScTSsxmUHzZFh1mqa43xttWBCplZxj0ksbANHdfCUnLZh_EAQ/viewform">この拡張機能への感想はコチラへ</a>
+  const commentControlsElement = stringToHtmlElement(`
+    <div>
+      <button id="toggle-comment-container">コメントを表示</button>
+      <button id="show-form" type="button">
+        コメントを投稿
+      </button>
+      <a style="margin-left: 10px" href="https://docs.google.com/forms/d/e/1FAIpQLScTSsxmUHzZFh1mqa43xttWBCplZxj0ksbANHdfCUnLZh_EAQ/viewform">この拡張機能への感想はコチラへ</a>
+    </div>
   `);
 
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
   // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
-  courseTitleElement.insertAdjacentElement("afterend", feedbackAnchor);
-  courseTitleElement.insertAdjacentElement("afterend", button);
+  courseTitleElement.insertAdjacentElement("afterend", commentControlsElement);
   courseTitleElement.insertAdjacentElement("afterend", commentContainerElement);
   courseTitleElement.insertAdjacentElement("afterend", angerToExamsElement);
   courseTitleElement.insertAdjacentElement("afterend", angerToTeacherElement);
@@ -482,7 +482,7 @@ export async function main() {
   </form>
   `);
   function handleShowButton(event) {
-    showForm.insertAdjacentElement("afterend", commentForm);
+    commentControlsElement.insertAdjacentElement("afterend", commentForm);
   }
 
   showForm.addEventListener("click", handleShowButton);
@@ -503,4 +503,19 @@ export async function main() {
     window.location.reload();
   }
   commentForm.addEventListener("submit", handleCommentForm);
+
+  // コメントの表示・非表示切り替え
+  const toggleCommentContainerButton = document.querySelector(
+    "#toggle-comment-container"
+  );
+  toggleCommentContainerButton.addEventListener("click", () => {
+    const display = commentContainerElement.style.getPropertyValue("display");
+    if (display === "block") {
+      commentContainerElement.style.setProperty("display", "none");
+      toggleCommentContainerButton.innerHTML = "コメントを表示";
+    } else {
+      commentContainerElement.style.setProperty("display", "block");
+      toggleCommentContainerButton.innerHTML = "コメントを隠す";
+    }
+  });
 }

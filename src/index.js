@@ -4,6 +4,7 @@ import {
   submitTeacherKindness,
   submitAssignmentDifficulty,
   stringToHtmlElement,
+  escapeHtml,
 } from "./lib.js";
 function round(value) {
   let ret;
@@ -248,6 +249,33 @@ export async function main() {
 
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);
+
+  // DBから持ってきたコメントからHTML生成する箇所始まり
+  // DBから持ってきたコメントのデータのダミー
+  const comments = [
+    {
+      uid: "987654",
+      quote: "テスト",
+      content: "あああああ",
+      created_at: new Date("2023-01-03"),
+    },
+    {
+      uid: "ABCDEFG",
+      quote: "講義（50%）と演習（50%）を併用する。",
+      content: "ちゃいますね",
+      created_at: new Date("2023-01-02"),
+    },
+    {
+      uid: "123456",
+      quote: "講義（50%）と演習（50%）を併用する。",
+      content: "講義0%と演習100%でした",
+      created_at: new Date("2023-01-01"),
+    },
+  ];
+
+  const textToBeInserted = escapeHtml("ユーザー生成のテキスト");
+
+  // DBから持ってきたコメントからHTML生成する箇所終わり
 
   const hoverOfTeacherKindness = [
     ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),

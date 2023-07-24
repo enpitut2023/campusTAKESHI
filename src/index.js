@@ -338,23 +338,27 @@ export async function main() {
       }
     }
   }
-  function radioClick(i) {
+  async function radioClick(i) {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
+    let promise;
     if (nthForm == 0) {
-      submitTeacherKindness(courseId, value);
+      promise = submitTeacherKindness(courseId, value);
     } else if (nthForm == 1) {
-      submitAssignmentDifficulty(courseId, value);
+      promise = submitAssignmentDifficulty(courseId, value);
     }
-    console.log("value:", value, "nthForm=", nthForm);
-    let changeTarget;
 
+    let changeTarget;
+    let voteSystem;
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
+      voteSystem = difficultyVoteSystem;
     } else {
       changeTarget = hoverOfTeacherKindness;
+      voteSystem = kindnessVoteSystem;
     }
+
     changeTarget[value - 1].checked = "checked";
     for (let index = 0; index <= value - 1; index++) {
       changeTarget[index].classList.add("checked");
@@ -363,6 +367,11 @@ export async function main() {
       changeTarget[index].classList.remove("checked");
       changeTarget[index].classList.add("offhover");
     }
+
+    voteSystem.appendChild(stringToHtmlElement(`<span>投票中...</span>`));
+
+    await promise;
+    window.location.reload();
   }
 
   for (let i = 0; i < 5; i++) {
@@ -409,7 +418,12 @@ export async function main() {
   async function handleCommentForm(event) {
     // 再読み込み防止
     event.preventDefault();
-    showForm.value = "投稿中...";
+
+    const submitButton = document.querySelector(
+      '#claim-form input[type="submit"]'
+    );
+    submitButton.value = "投稿中...";
+
     const inputComment = commentForm.comment.value;
     const inputQuote = commentForm.quote.value;
     await submitComment(courseId, inputQuote, inputComment);

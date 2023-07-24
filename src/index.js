@@ -1,6 +1,7 @@
 import {
   getTeacherKindnessRatings,
   getAssignmentDifficultyRatings,
+  getComments,
   submitTeacherKindness,
   submitAssignmentDifficulty,
   stringToHtmlElement,
@@ -213,10 +214,11 @@ export async function main() {
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
 
-  const [teacherKindnessRatings, assignmentDifficultyRatings] =
+  const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
     await Promise.all([
       getTeacherKindnessRatings(courseId),
       getAssignmentDifficultyRatings(courseId),
+      getComments(courseId),
     ]);
 
   console.log("teacherKindnessRatings", teacherKindnessRatings);
@@ -240,57 +242,47 @@ export async function main() {
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);
 
-  // DBから持ってきたコメントからHTML生成する箇所始まり
-  // DBから持ってきたコメントのデータのダミー
-  const comments = [
-    {
-      uid: "987654",
-      quote: "各授業で課す演習課題をレポートとして提出すること。 ",
-      content: "毎週1000語のレポートです。しんどい",
-      created_at: new Date("2023-01-03"),
-    },
-    {
-      uid: "ABCDEFG",
-      quote: "講義（50%）と演習（50%）を併用する。",
-      content: "講義0%と演習100%でした",
-      created_at: new Date("2023-01-02"),
-    },
-    {
-      uid: "123456",
-      quote: "講義（50%）と演習（50%）を併用する。",
-      content: "テスト",
-      created_at: new Date("2023-01-01"),
-    },
-  ];
+  // // DBから持ってきたコメントからHTML生成する箇所始まり
+  // // DBから持ってきたコメントのデータのダミー
+  // const comments = [
+  //   {
+  //     uid: "987654",
+  //     quote: "各授業で課す演習課題をレポートとして提出すること。 ",
+  //     content: "毎週1000語のレポートです。しんどい",
+  //     created_at: new Date("2023-01-03"),
+  //   },
+  //   {
+  //     uid: "ABCDEFG",
+  //     quote: "講義（50%）と演習（50%）を併用する。",
+  //     content: "講義0%と演習100%でした",
+  //     created_at: new Date("2023-01-02"),
+  //   },
+  //   {
+  //     uid: "123456",
+  //     quote: "講義（50%）と演習（50%）を併用する。",
+  //     content: "テスト",
+  //     created_at: new Date("2023-01-01"),
+  //   },
+  // ];
 
-  function display(comments) {
-    let htmlContent = [];
-    for (const comment of comments) {
-      const daydata = comment.created_at;
-      const year = daydata.getFullYear();
-      const month = daydata.getMonth() + 1;
-      const date = daydata.getDate();
+  function createCommentElement(comment) {
+    const year = comment.createdAt.getFullYear();
+    const month = comment.createdAt.getMonth() + 1;
+    const date = comment.createdAt.getDate();
 
-      const commentHtml = `
+    const commentHtml = `
         <div class="comment">
           <h2 class="quote">${escapeHtml(comment.quote)}</h2>
           <p>${escapeHtml(comment.content)}</p>
           <p class="date">${year}/${month}/${date}</p>
         </div>
       `;
-      htmlContent.push(stringToHtmlElement(commentHtml));
-    }
-    console.log(htmlContent);
-    return htmlContent;
+    return stringToHtmlElement(commentHtml);
   }
 
-  for (const element of display(comments)) {
-    commentContainerElement.appendChild(element);
+  for (const comment of comments) {
+    commentContainerElement.appendChild(createCommentElement(comment));
   }
-
-  const textToBeInserted = escapeHtml("ユーザー生成のテキスト");
-
-  // DBから持ってきたコメントからHTML生成する箇所終わり
 
   const hoverOfTeacherKindness = [
     ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),

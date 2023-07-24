@@ -244,43 +244,43 @@ export async function main() {
   // DBから持ってきたコメントのデータのダミー
   const comments = [
     {
-       uid: "987654",
-      quote: "テスト",
-      content: "あああああ",
+      uid: "987654",
+      quote: "各授業で課す演習課題をレポートとして提出すること。 ",
+      content: "毎週1000語のレポートです。しんどい",
       created_at: new Date("2023-01-03"),
     },
     {
       uid: "ABCDEFG",
       quote: "講義（50%）と演習（50%）を併用する。",
-      content: "ちゃいますね",
+      content: "講義0%と演習100%でした",
       created_at: new Date("2023-01-02"),
     },
     {
       uid: "123456",
       quote: "講義（50%）と演習（50%）を併用する。",
-      content: "<h1>AAAAAAAA</h1>",
+      content: "テスト",
       created_at: new Date("2023-01-01"),
     },
   ];
 
-  function display(comments){
+  function display(comments) {
     let htmlContent = [];
-    for(const comment of comments){
+    for (const comment of comments) {
       const daydata = comment.created_at;
       const year = daydata.getFullYear();
-      const month = daydata.getMonth() +1;
+      const month = daydata.getMonth() + 1;
       const date = daydata.getDate();
 
       const commentHtml = `
-      <div class="comment">
-        <h2 class="quote">${escapeHtml(comment.quote)}</h2>
-        <p>${escapeHtml(comment.content)}</p>
-        <p class="date">${year}/${month}/${date}</p>
-      </div>
+        <div class="comment">
+          <h2 class="quote">${escapeHtml(comment.quote)}</h2>
+          <p>${escapeHtml(comment.content)}</p>
+          <p class="date">${year}/${month}/${date}</p>
+        </div>
       `;
-      htmlContent.push(stringToHtmlElement(commentHtml))
+      htmlContent.push(stringToHtmlElement(commentHtml));
     }
-    console.log(htmlContent)
+    console.log(htmlContent);
     return htmlContent;
   }
 

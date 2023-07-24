@@ -69,3 +69,9 @@
 .rating{
   display: inline;
 }
+
+.quote {
+  border-left:5px solid #fed005; /*線の設定*/
+  padding:2px 8px; /*余白の設定*/
+  background: #f6f2b3;
+  }

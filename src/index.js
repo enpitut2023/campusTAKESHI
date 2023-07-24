@@ -214,7 +214,7 @@ export async function main() {
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
 
-  const [teacherKindnessRatings, assignmentDifficultyRatings] =
+  const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
     await Promise.all([
       getTeacherKindnessRatings(courseId),
       getAssignmentDifficultyRatings(courseId),
@@ -265,34 +265,24 @@ export async function main() {
   //   },
   // ];
 
-  function display(comments) {
-    let htmlContent = [];
-    for (const comment of comments) {
-      const daydata = comment.created_at;
-      const year = daydata.getFullYear();
-      const month = daydata.getMonth() + 1;
-      const date = daydata.getDate();
+  function createCommentElement(comment) {
+    const year = comment.createdAt.getFullYear();
+    const month = comment.createdAt.getMonth() + 1;
+    const date = comment.createdAt.getDate();
 
-      const commentHtml = `
+    const commentHtml = `
         <div class="comment">
           <h2 class="quote">${escapeHtml(comment.quote)}</h2>
           <p>${escapeHtml(comment.content)}</p>
           <p class="date">${year}/${month}/${date}</p>
         </div>
       `;
-      htmlContent.push(stringToHtmlElement(commentHtml));
-    }
-    console.log(htmlContent);
-    return htmlContent;
+    return stringToHtmlElement(commentHtml);
   }
 
-  for (const element of display(comments)) {
-    commentContainerElement.appendChild(element);
+  for (const comment of comments) {
+    commentContainerElement.appendChild(createCommentElement(comment));
   }
-
-  const textToBeInserted = escapeHtml("ユーザー生成のテキスト");
-
-  // DBから持ってきたコメントからHTML生成する箇所終わり
 
   const hoverOfTeacherKindness = [
     ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),

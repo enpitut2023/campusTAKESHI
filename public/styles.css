@@ -9,38 +9,67 @@
 .txt {
   font-size: 20px;
 }
-.rate-form input[type=radio] {
+.rate-form input[type="radio"] {
   display: none;
 }
 .rate-form {
-  display: inline;;
+  display: inline;
 }
 
-
-.hover{
+.hover {
   position: relative;
-  padding: 0 3px;
   font-size: 30px;
+  filter: grayscale(100%);
 }
-.checked{
+.checked {
   position: relative;
-  padding: 0 3px;
   font-size: 30px;
   color: #f0bc43;
 }
-.onhover{
+.onhover {
   color: #f0bc43;
 }
-.offhover{
-
+.offhover {
   color: #dbdbd9;
 }
 
-.rating{
+.rating-row {
+  display: flex;
   font-size: 20px;
-  margin-right: 40px;
+  gap: 40px;
+  margin-bottom: 10px;
 }
-.rating-value{
+
+.rating {
+  display: flex;
+  gap: 10px;
+}
+
+.rating > .faces {
+  color: transparent;
+  position: relative;
+  font-size: 30px;
+}
+
+.rating > .faces > .neutral,
+.rating > .faces > .mad {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-content: left;
+  color: black;
+}
+
+.rating > .faces > .neutral {
+  filter: grayscale(100%);
+}
+
+.rating > .faces > .mad {
+  clip-path: inset(0 50% 0 0);
+}
+
+.rating-value {
   font-size: 20px;
 }
 
@@ -65,13 +94,13 @@
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-} 
-.rating{
+}
+.rating {
   display: inline;
 }
 
 .quote {
-  border-left:5px solid #fed005; /*線の設定*/
-  padding:2px 8px; /*余白の設定*/
+  border-left: 5px solid #fed005; /*線の設定*/
+  padding: 2px 8px; /*余白の設定*/
   background: #f6f2b3;
-  }
+}

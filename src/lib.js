@@ -113,7 +113,7 @@ export function stringToHtmlElement(s) {
  * @param {string} html
  * @return {string}
  */
-function escapeHtml(html) {
+export function escapeHtml(html) {
   const text = document.createTextNode(html);
   const p = document.createElement("p");
   p.appendChild(text);

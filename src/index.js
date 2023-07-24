@@ -108,6 +108,12 @@ export async function main() {
       display: inline;
     }
 
+    .quote {
+      border-left:5px solid #fed005; /*線の設定*/
+      padding:2px 8px; /*余白の設定*/
+      background: #f6f2b3;
+      }
+
     </style>
   `);
   document.head.appendChild(styleElement);
@@ -161,9 +167,24 @@ export async function main() {
   `);
   const brElement = stringToHtmlElement("<br>");
 
+  const displayElement = stringToHtmlElement(`
+  <div style="width: 100%; height: 135px; overflow-y: scroll; border: 1px #0b0b0b solid;">
+    <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #0c0c0c;">
+      <h2 class="quote">課題が50％、期末試験が50％</h2>
+      <p> ちゃいますね</p>
+      <p style="text-align: right">2023/7/24</p>
+    </div>
+    <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #090909;">
+      <h2 class="quote">課題が50％、期末試験が50％</h2>
+      <p> 期末の制限時間が辛い...</p>
+      <p style="text-align: right">2023/7/24</p>
+    </div>
+  </div>
+  `);
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
   // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
+  courseTitleElement.insertAdjacentElement("afterend", displayElement);
   courseTitleElement.insertAdjacentElement("afterend", difficultyVoteSystem);
   courseTitleElement.insertAdjacentElement("afterend", difficultyElement);
   courseTitleElement.insertAdjacentElement("afterend", brElement);

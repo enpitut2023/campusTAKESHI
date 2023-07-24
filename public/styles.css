@@ -16,10 +16,13 @@
   display: inline;
 }
 
+.rate-form > label {
+  cursor: pointer;
+}
+
 .hover {
   position: relative;
   font-size: 30px;
-  filter: grayscale(100%);
 }
 .checked {
   position: relative;
@@ -30,7 +33,7 @@
   color: #f0bc43;
 }
 .offhover {
-  color: #dbdbd9;
+  filter: grayscale(100%);
 }
 
 .rating-row {
@@ -56,8 +59,7 @@
   position: absolute;
   inset: 0;
   display: grid;
-  align-content: center;
-  justify-content: left;
+  place-content: center;
   color: black;
 }
 

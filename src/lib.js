@@ -104,6 +104,22 @@ export function stringToHtmlElement(s) {
   return template.content.firstChild;
 }
 
+/**
+ * HTMLの特殊文字をエスケープする。
+ * ユーザーが生成したテキストなどをHTMLの中身として使う時は必ずこれを通す。
+ * そうしないとユーザーが他のユーザーのマシン上でJSを実行するなどできる
+ * XSS攻撃が可能になってしまう。
+ *
+ * @param {string} html
+ * @return {string}
+ */
+function escapeHtml(html) {
+  const text = document.createTextNode(html);
+  const p = document.createElement("p");
+  p.appendChild(text);
+  return p.innerHTML;
+}
+
 export async function main() {
   await signInAnonymously(auth);
 

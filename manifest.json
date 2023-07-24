@@ -1,8 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Takeshi The Syllabus Nitpicker",
+  "name": "たけし",
   "version": "1.0",
-  "description": "Takeshi is not satisfied with the syllabi that the professors have written",
+  "description": "筑波大の履修登録にどうしても役立ちたいおじさん",
+  "icons": {
+    "128": "images/icon-128.png"
+  },
   "content_scripts": [
     {
       "js": ["src/content_script.js"],

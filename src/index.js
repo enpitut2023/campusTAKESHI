@@ -42,162 +42,242 @@ function countCriterion(ratings) {
 export async function main() {
   const styleElement = stringToHtmlElement(`
     <style>
-    :root {
-      --star-size: 30px;
-      --star-color: #dbdbd9;
-      --star-background: #f0bc43;
-    }
-    .txt {
-      font-size: 20px;
-    }
-    .rate-form input[type=radio] {
-      display: none;
-    }
-    .rate-form {
-      display: inline;;
-    }
+/* //////////////////// */
+/* 評価を表示する機能のCSS */
+/* //////////////////// */
+:root {
+  --star-size: 30px;
+  --star-color: #dbdbd9;
+  --star-background: #f0bc43;
+}
 
+.rate-form {
+  display: flex;
+}
 
-    .hover{
-      position: relative;
-      padding: 0 3px;
-      font-size: 30px;
-    }
-    .checked{
-      position: relative;
-      padding: 0 3px;
-      font-size: 30px;
-      color: #f0bc43;
-    }
-    .onhover{
-      color: #f0bc43;
-    }
-    .offhover{
+.rate-form input[type="radio"] {
+  display: none;
+}
 
-      color: #dbdbd9;
-    }
+.rate-form > span {
+  font-size: 13px;
+  margin-right: 10px;
+}
 
-    .rating{
-      font-size: 20px;
-      margin-right: 40px;
-    }
-    .rating-value{
-      font-size: 20px;
-    }
+.rate-form > label {
+  cursor: pointer;
+}
 
-    .stars {
-      --percent: calc(var(--rating) / 5 * 100%);
-      display: inline-block;
-      font-size: var(--star-size);
-      font-family: Times;
-      line-height: 1;
-    }
-    .total-votes {
-      font-size: 15px;
-    }
+.hover {
+  position: relative;
+  font-size: 30px;
+}
+.checked {
+  position: relative;
+  font-size: 30px;
+  color: #f0bc43;
+}
+.onhover {
+  color: #f0bc43;
+}
+.offhover {
+  filter: grayscale(100%);
+}
 
-    .stars::after {
-      content: "★★★★★";
-      letter-spacing: 3px;
-      background: linear-gradient(
-        90deg,
-        var(--star-background) var(--percent),
-        var(--star-color) var(--percent)
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    } 
-    .rating{
-      display: inline;
-    }
+.rating-row {
+  display: flex;
+  font-size: 20px;
+  gap: 40px;
+  margin-bottom: 20px;
+}
 
-    .comment-container {
-      height: 200px;
-      overflow-y: scroll;
-      border: 1px solid #0b0b0b;
-    }
+.rating {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
 
-    .comment {
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #0b0b0b;
-    }
+.rating > .faces {
+  color: transparent;
+  position: relative;
+  font-size: 30px;
+}
 
-    .comment > .quote {
-      border-left:5px solid #fed005; /*線の設定*/
-      padding:2px 8px; /*余白の設定*/
-      background: #f6f2b3;
-    }
+.rating > .faces > .neutral,
+.rating > .faces > .mad {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  color: black;
+}
 
-    .comment > .date {
-      text-align: right;
-    }
+.rating > .faces > .neutral {
+  filter: grayscale(100%);
+}
+
+.rating > .faces > .mad {
+  clip-path: inset(-100px calc((5 - var(--rating)) / 5 * 100%) -100px -100px);
+}
+
+.rating-value {
+  font-size: 20px;
+}
+
+.stars {
+  --percent: calc(var(--rating) / 5 * 100%);
+  display: inline-block;
+  font-size: var(--star-size);
+  font-family: Times;
+  line-height: 1;
+}
+.total-votes {
+  font-size: 15px;
+}
+
+.stars::after {
+  content: "★★★★★";
+  letter-spacing: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--star-background) var(--percent),
+    var(--star-color) var(--percent)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.quote {
+  border-left: 5px solid #fed005; /*線の設定*/
+  padding: 2px 8px; /*余白の設定*/
+  background: #f6f2b3;
+}
+
+.comment-container {
+  height: 200px;
+  overflow-y: scroll;
+  border: 1px solid #0b0b0b;
+  resize: vertical;
+}
+
+.comment {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #0b0b0b;
+}
+
+.comment > .quote {
+  border-left:5px solid #fed005; /*線の設定*/
+  padding:2px 8px; /*余白の設定*/
+  background: #f6f2b3;
+}
+
+.comment > .date {
+  text-align: right;
+}
     </style>
   `);
   document.head.appendChild(styleElement);
 
   // 文字列からHTMLの要素を作りましょう
-  const kindnessElement = stringToHtmlElement(`
-    <div class="rating" >
-      <span class="rating-label">先生の優しさ:</span>
-      <span class="rating-value" id="kindness-rating-value"></span>
-      <span class="stars" id="kindness-rating-star"></span>
-      <span class="total-votes" id="kindness-total-votes"></span>
-    </div>
-  `);
-  const kindnessVoteSystem = stringToHtmlElement(`
-  <div class="rate-form" id="rate-form-teacher-kindness">
-  <span>クリックして投票</span>
-  <input type="radio" id="star1" name="kindness-rate"><!-- 
-  --><label for="star1" class="offhover hover">★</label><!-- 
-  --><input type="radio" id="star2" name="kindness-rate"><!-- 
-  --><label for="star2"class="offhover hover">★</label><!-- 
-  --><input type="radio" id="star3" name="kindness-rate"><!-- 
-  --><label for="star3" class="offhover hover">★</label><!-- 
-  --><input type="radio" id="star4" name="kindness-rate"><!-- 
-  --><label for="star4" class="offhover hover">★</label><!-- 
-  --><input type="radio" id="star5" name="kindness-rate"><!-- 
-  --><label for="star5" class="offhover hover">★</label>
-  </div>
-  `);
-  const difficultyElement = stringToHtmlElement(`
-  <div class="rating">
-    <span class="rating-label">課題の難しさ:</span>
-    <span class="rating-value" id="difficulty-rating-value"></span>
-    <span class="stars" id="difficulty-rating-star"></span>
-    <span class="total-votes" id="difficulty-total-votes"></span>
-  </div>
-  `);
-  const difficultyVoteSystem = stringToHtmlElement(`
-  <div class="rate-form" id="rate-form-assignment-difficulty">
+  const angerToTeacherElement = stringToHtmlElement(`
+    <div class="rating-row">
+      <div class="rating">
+        <span class="rating-label">先生への怒り:</span>
+        <span class="rating-value" id="kindness-rating-value">0.0</span>
+        <span class="faces" id="kindness-rating-star">
+          😡😡😡😡😡
+          <div class="neutral">😡😡😡😡😡</div>
+          <div class="mad" id="kindness-rating-star">
+            😡😡😡😡😡
+          </div>
+        </span>
+        <span class="total-votes" id="kindness-total-votes">計0票</span>
+      </div>
+      <div class="rate-form" id="rate-form-teacher-kindness">
         <span>クリックして投票</span>
-        <input type="radio" id="star6" name="difficulty-rate"><!-- 
-    --><label for="star6" class="offhover hover">★</label><!-- 
-    --><input type="radio" id="star7" name="difficulty-rate"><!-- 
-    --><label for="star7"class="offhover hover">★</label><!-- 
-    --><input type="radio" id="star8" name="difficulty-rate"><!-- 
-    --><label for="star8" class="offhover hover">★</label><!-- 
-    --><input type="radio" id="star9" name="difficulty-rate"><!-- 
-    --><label for="star9" class="offhover hover">★</label><!-- 
-    --><input type="radio" id="star10" name="difficulty-rate"><!-- 
-    --><label for="star10" class="offhover hover">★</label>
+        <input type="radio" id="star1" name="kindness-rate" /><!-- 
+    --><label for="star1" class="offhover hover" onclick="radioClick(1, 0)"
+          >😡</label
+        ><!-- 
+    --><input type="radio" id="star2" name="kindness-rate" /><!-- 
+    --><label for="star2" class="offhover hover" onclick="radioClick(2, 0)"
+          >😡</label
+        ><!-- 
+    --><input type="radio" id="star3" name="kindness-rate" /><!-- 
+    --><label for="star3" class="offhover hover" onclick="radioClick(3, 0)"
+          >😡</label
+        ><!-- 
+    --><input type="radio" id="star4" name="kindness-rate" /><!-- 
+    --><label for="star4" class="offhover hover" onclick="radioClick(4, 0)"
+          >😡</label
+        ><!-- 
+    --><input type="radio" id="star5" name="kindness-rate" /><!-- 
+    --><label for="star5" class="offhover hover" onclick="radioClick(5, 0)"
+          >😡</label
+        >
+      </div>
     </div>
   `);
-  const brElement = stringToHtmlElement("<br>");
+  const angerToExamsElement = stringToHtmlElement(`
+    <div class="rating-row">
+      <div class="rating">
+        <span class="rating-label">課題・テストへの怒り:</span>
+        <span class="rating-value" id="difficulty-rating-value">0.0</span>
+        <span class="faces" id="difficulty-rating-star">
+          😡😡😡😡😡
+          <div class="neutral">😡😡😡😡😡</div>
+          <div class="mad" id="difficulty-rating-star">
+            😡😡😡😡😡
+          </div>
+        </span>
+        <span class="total-votes" id="difficulty-total-votes">計0票</span>
+      </div>
+      <div class="rate-form" id="rate-form-assignment-difficulty">
+        <span>クリックして投票</span>
+        <input type="radio" id="star6" name="difficulty-rate" /><!-- 
+        --><label for="star6" class="offhover hover" onclick="radioClick(1, 1)"
+          >😡</label
+        ><!-- 
+        --><input type="radio" id="star7" name="difficulty-rate" /><!-- 
+        --><label for="star7" class="offhover hover" onclick="radioClick(2, 1)"
+          >😡</label
+        ><!-- 
+        --><input type="radio" id="star8" name="difficulty-rate" /><!-- 
+        --><label for="star8" class="offhover hover" onclick="radioClick(3, 1)"
+          >😡</label
+        ><!-- 
+        --><input type="radio" id="star9" name="difficulty-rate" /><!-- 
+        --><label for="star9" class="offhover hover" onclick="radioClick(4, 1)"
+          >😡</label
+        ><!-- 
+        --><input type="radio" id="star10" name="difficulty-rate" /><!-- 
+        --><label for="star10" class="offhover hover" onclick="radioClick(5, 1)"
+          >😡</label
+        >
+      </div>
+    </div>
+  `);
   const commentContainerElement = stringToHtmlElement(`
-    <div class="comment-container">      
+    <div class="comment-container" style="display: none"></div>
+  `);
+  const commentControlsElement = stringToHtmlElement(`
+    <div>
+      <button id="toggle-comment-container">コメントを表示</button>
+      <button id="show-form" type="button">
+        コメントを投稿
+      </button>
+      <a style="margin-left: 10px" href="https://docs.google.com/forms/d/e/1FAIpQLScTSsxmUHzZFh1mqa43xttWBCplZxj0ksbANHdfCUnLZh_EAQ/viewform">この拡張機能への感想はコチラへ</a>
     </div>
   `);
 
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
   // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
+  courseTitleElement.insertAdjacentElement("afterend", commentControlsElement);
   courseTitleElement.insertAdjacentElement("afterend", commentContainerElement);
-  courseTitleElement.insertAdjacentElement("afterend", difficultyVoteSystem);
-  courseTitleElement.insertAdjacentElement("afterend", difficultyElement);
-  courseTitleElement.insertAdjacentElement("afterend", brElement);
-  courseTitleElement.insertAdjacentElement("afterend", kindnessVoteSystem);
-  courseTitleElement.insertAdjacentElement("afterend", kindnessElement);
+  courseTitleElement.insertAdjacentElement("afterend", angerToExamsElement);
+  courseTitleElement.insertAdjacentElement("afterend", angerToTeacherElement);
 
   const kindnessRatingValue = document.querySelector("#kindness-rating-value");
   const kindnessRatingStar = document.querySelector("#kindness-rating-star");
@@ -271,9 +351,14 @@ export async function main() {
     const month = comment.createdAt.getMonth() + 1;
     const date = comment.createdAt.getDate();
 
+    const quoteHtml =
+      comment.quote.trim() === ""
+        ? ""
+        : `<h2 class="quote">引用：「${escapeHtml(comment.quote)}」</h2>`;
+
     const commentHtml = `
         <div class="comment">
-          <h2 class="quote">${escapeHtml(comment.quote)}</h2>
+          ${quoteHtml}
           <p>${escapeHtml(comment.content)}</p>
           <p class="date">${year}/${month}/${date}</p>
         </div>
@@ -326,24 +411,27 @@ export async function main() {
       }
     }
   }
-
-  function radioClick(i) {
+  async function radioClick(i) {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
+    let promise;
     if (nthForm == 0) {
-      submitTeacherKindness(courseId, value);
+      promise = submitTeacherKindness(courseId, value);
     } else if (nthForm == 1) {
-      submitAssignmentDifficulty(courseId, value);
+      promise = submitAssignmentDifficulty(courseId, value);
     }
-    console.log("value:", value, "nthForm=", nthForm);
 
     let changeTarget;
+    let voteSystem;
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
+      voteSystem = document.querySelector("#rate-form-assignment-difficulty");
     } else {
       changeTarget = hoverOfTeacherKindness;
+      voteSystem = document.querySelector("#rate-form-teacher-kindness");
     }
+
     changeTarget[value - 1].checked = "checked";
     for (let index = 0; index <= value - 1; index++) {
       changeTarget[index].classList.add("checked");
@@ -352,6 +440,11 @@ export async function main() {
       changeTarget[index].classList.remove("checked");
       changeTarget[index].classList.add("offhover");
     }
+
+    voteSystem.appendChild(stringToHtmlElement(`<span>投票中...</span>`));
+
+    await promise;
+    window.location.reload();
   }
 
   for (let i = 0; i < 5; i++) {
@@ -371,4 +464,58 @@ export async function main() {
   for (let i = 0; i < 10; i++) {
     labelElements[i].addEventListener("click", () => radioClick(i));
   }
+  //コメントフォームを表示するためのボタン
+  const showForm = document.querySelector("#show-form");
+  const commentForm = stringToHtmlElement(`
+  <form id="claim-form">
+  <div>
+    <label for="quote-from-syllabus">引用 (任意、シラバスの一部をコピペしてください)</label><br>
+    <input id="i_furigana" type="text" name="quote" value="" placeholder="例：講義（50%）と演習（50%）を併用する。" style="width: 100%">
+  </div>
+  <div>
+    <label for="claim-for-syllabus">本文</label><br>
+    <textarea id="claim-for-syllabus" name="comment" placeholder="例：講義0%と演習100%でした" style="width: 100%; height: 10ch"></textarea>
+  </div>
+  <div class="btn_area">
+    <input type="submit" name="shout" value="投稿">
+  </div>
+  </form>
+  `);
+  function handleShowButton(event) {
+    commentControlsElement.insertAdjacentElement("afterend", commentForm);
+  }
+
+  showForm.addEventListener("click", handleShowButton);
+
+  //コメントが投稿された時に内容を受け取る
+  async function handleCommentForm(event) {
+    // 再読み込み防止
+    event.preventDefault();
+
+    const submitButton = document.querySelector(
+      '#claim-form input[type="submit"]'
+    );
+    submitButton.value = "投稿中...";
+
+    const inputComment = commentForm.comment.value;
+    const inputQuote = commentForm.quote.value;
+    await submitComment(courseId, inputQuote, inputComment);
+    window.location.reload();
+  }
+  commentForm.addEventListener("submit", handleCommentForm);
+
+  // コメントの表示・非表示切り替え
+  const toggleCommentContainerButton = document.querySelector(
+    "#toggle-comment-container"
+  );
+  toggleCommentContainerButton.addEventListener("click", () => {
+    const display = commentContainerElement.style.getPropertyValue("display");
+    if (display === "block") {
+      commentContainerElement.style.setProperty("display", "none");
+      toggleCommentContainerButton.innerHTML = "コメントを表示";
+    } else {
+      commentContainerElement.style.setProperty("display", "block");
+      toggleCommentContainerButton.innerHTML = "コメントを隠す";
+    }
+  });
 }

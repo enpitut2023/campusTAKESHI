@@ -10,6 +10,10 @@
     {
       "js": ["src/content_script.js"],
       "matches": ["https://kdb.tsukuba.ac.jp/syllabi/*"]
+    },
+    {
+      "js": ["src/content_script_manaba.js"],
+      "matches": ["https://manaba.tsukuba.ac.jp/ct/course_*"]
     }
   ],
   "web_accessible_resources": [

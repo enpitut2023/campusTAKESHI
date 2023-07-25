@@ -154,7 +154,6 @@ export async function main() {
 }
 
 .comment-container {
-  height: 200px;
   overflow-y: scroll;
   border: 1px solid #0b0b0b;
   resize: vertical;
@@ -263,7 +262,7 @@ export async function main() {
   `);
   const commentControlsElement = stringToHtmlElement(`
     <div>
-      <button id="toggle-comment-container">コメントを表示</button>
+      <button id="toggle-comment-container">コメントを表示(0件)</button>
       <button id="show-form" type="button">
         コメントを投稿
       </button>
@@ -274,8 +273,8 @@ export async function main() {
   // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
   // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
-  courseTitleElement.insertAdjacentElement("afterend", commentControlsElement);
   courseTitleElement.insertAdjacentElement("afterend", commentContainerElement);
+  courseTitleElement.insertAdjacentElement("afterend", commentControlsElement);
   courseTitleElement.insertAdjacentElement("afterend", angerToExamsElement);
   courseTitleElement.insertAdjacentElement("afterend", angerToTeacherElement);
 
@@ -294,6 +293,7 @@ export async function main() {
 
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
+  
 
   const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
     await Promise.all([
@@ -301,6 +301,8 @@ export async function main() {
       getAssignmentDifficultyRatings(courseId),
       getComments(courseId),
     ]);
+  const numberOfComments = comments.length;
+
 
   console.log("teacherKindnessRatings", teacherKindnessRatings);
   console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
@@ -508,11 +510,12 @@ export async function main() {
   const toggleCommentContainerButton = document.querySelector(
     "#toggle-comment-container"
   );
+  toggleCommentContainerButton.innerHTML = `コメントを表示(${numberOfComments}件)`;
   toggleCommentContainerButton.addEventListener("click", () => {
     const display = commentContainerElement.style.getPropertyValue("display");
     if (display === "block") {
       commentContainerElement.style.setProperty("display", "none");
-      toggleCommentContainerButton.innerHTML = "コメントを表示";
+      toggleCommentContainerButton.innerHTML = `コメントを表示(${numberOfComments}件)`;
     } else {
       commentContainerElement.style.setProperty("display", "block");
       toggleCommentContainerButton.innerHTML = "コメントを隠す";

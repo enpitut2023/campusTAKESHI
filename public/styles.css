@@ -108,3 +108,7 @@
   padding: 2px 8px; /*余白の設定*/
   background: #f6f2b3;
 }
+
+.good {
+  text-align: right;
+}

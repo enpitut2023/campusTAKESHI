@@ -363,6 +363,9 @@ export async function main() {
           ${quoteHtml}
           <p>${escapeHtml(comment.content)}</p>
           <p class="date">${year}/${month}/${date}</p>
+          <button type="submit" class="date" id="combtn">
+            💕(0)
+          </button>
         </div>
       `;
     return stringToHtmlElement(commentHtml);
@@ -521,4 +524,9 @@ export async function main() {
       toggleCommentContainerButton.innerHTML = "コメントを隠す";
     }
   });
+  var combtn = document.getElementById('combtn');
+  combtn.addEventListener('click',function(){
+    console.log("test")
+  },false);
 }
+

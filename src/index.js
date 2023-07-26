@@ -196,23 +196,23 @@ export async function main() {
       <div class="rate-form" id="rate-form-teacher-kindness">
         <span>クリックして投票</span>
         <input type="radio" id="star1" name="kindness-rate" /><!-- 
-    --><label for="star1" class="offhover hover" onclick="radioClick(1, 0)"
+    --><label for="star1" class="offhover hover"
           >😡</label
         ><!-- 
     --><input type="radio" id="star2" name="kindness-rate" /><!-- 
-    --><label for="star2" class="offhover hover" onclick="radioClick(2, 0)"
+    --><label for="star2" class="offhover hover"
           >😡</label
         ><!-- 
     --><input type="radio" id="star3" name="kindness-rate" /><!-- 
-    --><label for="star3" class="offhover hover" onclick="radioClick(3, 0)"
+    --><label for="star3" class="offhover hover"
           >😡</label
         ><!-- 
     --><input type="radio" id="star4" name="kindness-rate" /><!-- 
-    --><label for="star4" class="offhover hover" onclick="radioClick(4, 0)"
+    --><label for="star4" class="offhover hover"
           >😡</label
         ><!-- 
     --><input type="radio" id="star5" name="kindness-rate" /><!-- 
-    --><label for="star5" class="offhover hover" onclick="radioClick(5, 0)"
+    --><label for="star5" class="offhover hover"
           >😡</label
         >
       </div>
@@ -235,23 +235,23 @@ export async function main() {
       <div class="rate-form" id="rate-form-assignment-difficulty">
         <span>クリックして投票</span>
         <input type="radio" id="star6" name="difficulty-rate" /><!-- 
-        --><label for="star6" class="offhover hover" onclick="radioClick(1, 1)"
+        --><label for="star6" class="offhover hover"
           >😡</label
         ><!-- 
         --><input type="radio" id="star7" name="difficulty-rate" /><!-- 
-        --><label for="star7" class="offhover hover" onclick="radioClick(2, 1)"
+        --><label for="star7" class="offhover hover"
           >😡</label
         ><!-- 
         --><input type="radio" id="star8" name="difficulty-rate" /><!-- 
-        --><label for="star8" class="offhover hover" onclick="radioClick(3, 1)"
+        --><label for="star8" class="offhover hover"
           >😡</label
         ><!-- 
         --><input type="radio" id="star9" name="difficulty-rate" /><!-- 
-        --><label for="star9" class="offhover hover" onclick="radioClick(4, 1)"
+        --><label for="star9" class="offhover hover"
           >😡</label
         ><!-- 
         --><input type="radio" id="star10" name="difficulty-rate" /><!-- 
-        --><label for="star10" class="offhover hover" onclick="radioClick(5, 1)"
+        --><label for="star10" class="offhover hover"
           >😡</label
         >
       </div>

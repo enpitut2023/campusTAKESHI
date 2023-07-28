@@ -169,7 +169,7 @@ export async function main() {
   display: flex;
 }
 
-.rate-form input[type="radio"] {
+.rate-form > input[type="radio"] {
   display: none;
 }
 
@@ -236,27 +236,8 @@ export async function main() {
   font-size: 20px;
 }
 
-.stars {
-  --percent: calc(var(--rating) / 5 * 100%);
-  display: inline-block;
-  font-size: var(--star-size);
-  font-family: Times;
-  line-height: 1;
-}
 .total-votes {
   font-size: 15px;
-}
-
-.stars::after {
-  content: "★★★★★";
-  letter-spacing: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--star-background) var(--percent),
-    var(--star-color) var(--percent)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .quote {
@@ -307,24 +288,24 @@ export async function main() {
       </div>
       <div class="rate-form" id="rate-form-teacher-kindness">
         <span>クリックして投票</span>
-        <input type="radio" id="star1" name="kindness-rate" /><!-- 
-    --><label for="star1" class="hover" 
+        <input type="radio" id="star1" name="kindness-rate" /><!--
+    --><label for="star1" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star2" name="kindness-rate" /><!-- 
-    --><label for="star2" class="hover" 
+        ><!--
+    --><input type="radio" id="star2" name="kindness-rate" /><!--
+    --><label for="star2" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star3" name="kindness-rate" /><!-- 
-    --><label for="star3" class="hover" 
+        ><!--
+    --><input type="radio" id="star3" name="kindness-rate" /><!--
+    --><label for="star3" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star4" name="kindness-rate" /><!-- 
-    --><label for="star4" class="hover" 
+        ><!--
+    --><input type="radio" id="star4" name="kindness-rate" /><!--
+    --><label for="star4" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star5" name="kindness-rate" /><!-- 
-    --><label for="star5" class="hover" 
+        ><!--
+    --><input type="radio" id="star5" name="kindness-rate" /><!--
+    --><label for="star5" class="hover"
           >😡</label
         >
       </div>
@@ -346,24 +327,24 @@ export async function main() {
       </div>
       <div class="rate-form" id="rate-form-assignment-difficulty">
         <span>クリックして投票</span>
-        <input type="radio" id="star6" name="difficulty-rate" /><!-- 
-        --><label for="star6" class="hover" 
+        <input type="radio" id="star6" name="difficulty-rate" /><!--
+        --><label for="star6" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star7" name="difficulty-rate" /><!-- 
-        --><label for="star7" class="hover" 
+        ><!--
+        --><input type="radio" id="star7" name="difficulty-rate" /><!--
+        --><label for="star7" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star8" name="difficulty-rate" /><!-- 
-        --><label for="star8" class="hover" 
+        ><!--
+        --><input type="radio" id="star8" name="difficulty-rate" /><!--
+        --><label for="star8" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star9" name="difficulty-rate" /><!-- 
-        --><label for="star9" class="hover" 
+        ><!--
+        --><input type="radio" id="star9" name="difficulty-rate" /><!--
+        --><label for="star9" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star10" name="difficulty-rate" /><!-- 
-        --><label for="star10" class="hover" 
+        ><!--
+        --><input type="radio" id="star10" name="difficulty-rate" /><!--
+        --><label for="star10" class="hover"
           >😡</label
         >
       </div>
@@ -415,14 +396,11 @@ export async function main() {
   //     getComments(courseId),
   //   ]);
 
-  const teacherKindnessRatings = [];
-  const assignmentDifficultyRatings = [];
+  const teacherKindnessRatings = [{ value: 3 }, { value: 4 }];
+  const assignmentDifficultyRatings = [{ value: 1 }, { value: 2 }];
   const comments = [];
 
   const numberOfComments = comments.length;
-
-  console.log("teacherKindnessRatings", teacherKindnessRatings);
-  console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
 
   const kindnessCriterion = countCriterion(teacherKindnessRatings);
   const difficultyCriterion = countCriterion(assignmentDifficultyRatings);
@@ -482,7 +460,6 @@ export async function main() {
     initialHighlights(rating?.angerAtProf, undefined)
   )) {
     if (highlighted) {
-      // TODO: needs 3rd state (not hovered but highlighted)
       element.classList.add("preselected");
     }
   }
@@ -492,7 +469,6 @@ export async function main() {
     initialHighlights(rating?.angerAtTasks, undefined)
   )) {
     if (highlighted) {
-      // TODO: needs 3rd state (not hovered but highlighted)
       element.classList.add("preselected");
     }
   }

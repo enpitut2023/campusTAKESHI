@@ -30,10 +30,11 @@ const auth = getAuth();
 const db = getFirestore(app);
 
 /** @type {string | undefined} */
-let userId = undefined;
+export let userId = undefined;
 
 /**
  * @typedef {object} Rating
+ * @property {number} uid
  * @property {number} value 星の数 (1~5の整数)
  */
 
@@ -45,7 +46,7 @@ let userId = undefined;
 async function getRatings(courseId, collectionName) {
   const ratings = collection(db, "courses", courseId, collectionName);
   const snapshot = await getDocs(ratings);
-  return snapshot.docs.map((e) => e.data());
+  return snapshot.docs.map((e) => ({ uid: e.id, ...e.data() }));
 }
 
 /**

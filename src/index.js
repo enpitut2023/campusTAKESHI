@@ -7,6 +7,7 @@ import {
   stringToHtmlElement,
   escapeHtml,
   submitComment,
+  userId,
 } from "./lib.js";
 
 /**
@@ -102,26 +103,6 @@ function newHighlights(n) {
   return hs;
 }
 
-/**
- * @param {number | undefined} valueFromLocalStorage
- * @param {number | undefined} valueFromDb
- * @returns {[boolean, boolean, boolean, boolean, boolean]}
- */
-function initialHighlights(valueFromLocalStorage, valueFromDb) {
-  let n;
-  if (valueFromDb === undefined) {
-    if (valueFromLocalStorage === undefined) {
-      n = 0;
-    } else {
-      n = valueFromLocalStorage;
-    }
-  } else {
-    n = valueFromDb;
-  }
-
-  return newHighlights(n);
-}
-
 function round(value) {
   let ret;
   ret = (Math.round(value * 10) / 10).toFixed(1);
@@ -150,6 +131,19 @@ function countCriterion(ratings) {
     labelContent: labelContent,
   };
   return dict;
+}
+
+/**
+ * @param {HTMLElement[]} hovers
+ * @param {[boolean, boolean, boolean, boolean, boolean]} highlights
+ * @returns {void}
+ */
+function applyHoverHighlights(hovers, highlights) {
+  for (const [hover, highlight] of zip(hovers, highlights)) {
+    if (highlight) {
+      hover.classList.add("preselected");
+    }
+  }
 }
 
 // 拡張機能が読み込まれたら最初に実行される関数
@@ -391,21 +385,36 @@ export async function main() {
     "#difficulty-total-votes"
   );
 
+  const hoverOfTeacherKindness = [
+    ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),
+  ];
+  const hoverOfAssignmentDifficulty = [
+    ...document.querySelectorAll("#rate-form-assignment-difficulty .hover"),
+  ];
+  const labelElements = [...document.querySelectorAll(".rate-form label")];
+
+  kindnessRatingStar.style.setProperty("--rating", 0);
+  difficultyRatingStar.style.setProperty("--rating", 0);
+
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
 
-  const storage = new Storage(window.localStorage);
+  const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
+    await Promise.all([
+      getTeacherKindnessRatings(courseId),
+      getAssignmentDifficultyRatings(courseId),
+      getComments(courseId),
+    ]);
 
-  // const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
-  //   await Promise.all([
-  //     getTeacherKindnessRatings(courseId),
-  //     getAssignmentDifficultyRatings(courseId),
-  //     getComments(courseId),
-  //   ]);
-
-  const teacherKindnessRatings = [{ value: 3 }, { value: 4 }];
-  const assignmentDifficultyRatings = [{ value: 1 }, { value: 2 }];
-  const comments = [];
+  // const teacherKindnessRatings = [
+  //   { uid: "123", value: 3 },
+  //   { uid: "456", value: 4 },
+  // ];
+  // const assignmentDifficultyRatings = [
+  //   { uid: "123", value: 1 },
+  //   { uid: "456", value: 2 },
+  // ];
+  // const comments = [];
 
   const numberOfComments = comments.length;
 
@@ -451,34 +460,20 @@ export async function main() {
     commentContainerElement.appendChild(createCommentElement(comment));
   }
 
-  const hoverOfTeacherKindness = [
-    ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),
-  ];
-  const hoverOfAssignmentDifficulty = [
-    ...document.querySelectorAll("#rate-form-assignment-difficulty .hover"),
-  ];
-  const labelElements = [...document.querySelectorAll(".rate-form label")];
-
-  const rating = storage.readRating();
-  // TODO: fetch rating value from db if it doesn't exist in the local storage
-
-  for (const [element, highlighted] of zip(
+  const myAngerAtProf = teacherKindnessRatings.find(
+    (x) => x.uid === userId
+  )?.value;
+  const myAngerAtTasks = assignmentDifficultyRatings.find(
+    (x) => x.uid === userId
+  )?.value;
+  applyHoverHighlights(
     hoverOfTeacherKindness,
-    initialHighlights(rating?.angerAtProf, undefined)
-  )) {
-    if (highlighted) {
-      element.classList.add("preselected");
-    }
-  }
-
-  for (const [element, highlighted] of zip(
+    newHighlights(myAngerAtProf ?? 0)
+  );
+  applyHoverHighlights(
     hoverOfAssignmentDifficulty,
-    initialHighlights(rating?.angerAtTasks, undefined)
-  )) {
-    if (highlighted) {
-      element.classList.add("preselected");
-    }
-  }
+    newHighlights(myAngerAtTasks ?? 0)
+  );
 
   let isSubmitting = false;
 
@@ -527,16 +522,12 @@ export async function main() {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
-    const rating = storage.readRating() ?? {};
     let promise;
     if (nthForm == 0) {
-      // promise = submitTeacherKindness(courseId, value);
-      storage.writeRating({ ...rating, angerAtProf: value });
+      promise = submitTeacherKindness(courseId, value);
     } else if (nthForm == 1) {
-      // promise = submitAssignmentDifficulty(courseId, value);
-      storage.writeRating({ ...rating, angerAtTasks: value });
+      promise = submitAssignmentDifficulty(courseId, value);
     }
-    console.log({ value, nthForm });
 
     let changeTarget;
     let voteSystem;
@@ -555,7 +546,7 @@ export async function main() {
     }
 
     await promise;
-    // window.location.reload();
+    window.location.reload();
   }
 
   for (let i = 0; i < 5; i++) {

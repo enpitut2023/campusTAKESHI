@@ -7,7 +7,102 @@ import {
   stringToHtmlElement,
   escapeHtml,
   submitComment,
+  userId,
 } from "./lib.js";
+
+/**
+ * @template T
+ * @template U
+ * @param {T[]} ts
+ * @param {U[]} us
+ * @returns {Generator<[T, U], unknown, unknown>}
+ */
+function* zip(ts, us) {
+  const len = Math.min(ts.length, us.length);
+  for (let i = 0; i < len; i++) {
+    yield [ts[i], us[i]];
+  }
+}
+
+/**
+ * @typedef {object} Rating
+ * @property {number | undefined} angerAtProf
+ * @property {number | undefined} angerAtTasks
+ */
+
+/**
+ * @param {unknown} x
+ * @returns {Rating | undefined}
+ */
+function parseRating(x) {
+  return x === null || x === undefined ? undefined : x;
+}
+
+class Storage {
+  /** @type {globalThis.Storage} */
+  localStorage;
+
+  /**
+   * @param {globalThis.Storage} localStorage
+   */
+  constructor(localStorage) {
+    this.localStorage = localStorage;
+  }
+
+  /**
+   * @param {string} key
+   * @returns {unknown | undefined}
+   */
+  read(key) {
+    const item = this.localStorage.getItem(key);
+    if (item === null) {
+      return undefined;
+    }
+
+    try {
+      return JSON.parse(item);
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * @param {string} key
+   * @param {unknown} value
+   * @returns {void}
+   */
+  write(key, value) {
+    this.localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  /**
+   * @returns {Rating | undefined}
+   */
+  readRating() {
+    return parseRating(this.read("rating"));
+  }
+
+  /**
+   * @param {Rating} x
+   * @returns {void}
+   */
+  writeRating(x) {
+    this.write("rating", x);
+  }
+}
+
+/**
+ * @param {number} n
+ * @returns {[boolean, boolean, boolean, boolean, boolean]}
+ */
+function newHighlights(n) {
+  const hs = new Array(5);
+  for (let i = 0; i < hs.length; i++) {
+    hs[i] = i < n;
+  }
+  return hs;
+}
+
 function round(value) {
   let ret;
   ret = (Math.round(value * 10) / 10).toFixed(1);
@@ -38,6 +133,19 @@ function countCriterion(ratings) {
   return dict;
 }
 
+/**
+ * @param {HTMLElement[]} hovers
+ * @param {[boolean, boolean, boolean, boolean, boolean]} highlights
+ * @returns {void}
+ */
+function applyHoverHighlights(hovers, highlights) {
+  for (const [hover, highlight] of zip(hovers, highlights)) {
+    if (highlight) {
+      hover.classList.add("preselected");
+    }
+  }
+}
+
 // 拡張機能が読み込まれたら最初に実行される関数
 export async function main() {
   const styleElement = stringToHtmlElement(`
@@ -55,7 +163,7 @@ export async function main() {
   display: flex;
 }
 
-.rate-form input[type="radio"] {
+.rate-form > input[type="radio"] {
   display: none;
 }
 
@@ -69,19 +177,17 @@ export async function main() {
 }
 
 .hover {
-  position: relative;
   font-size: 30px;
+  filter: grayscale(1);
 }
-.checked {
-  position: relative;
-  font-size: 30px;
-  color: #f0bc43;
+
+.hover.preselected {
+  filter: grayscale(0.5);
 }
-.onhover {
-  color: #f0bc43;
-}
-.offhover {
-  filter: grayscale(100%);
+
+.hover.hovered,
+.hover.selected {
+  filter: grayscale(0);
 }
 
 .rating-row {
@@ -89,6 +195,10 @@ export async function main() {
   font-size: 20px;
   gap: 40px;
   margin-bottom: 20px;
+}
+
+.rating-row.submitting {
+  opacity: 0.7;
 }
 
 .rating {
@@ -124,27 +234,8 @@ export async function main() {
   font-size: 20px;
 }
 
-.stars {
-  --percent: calc(var(--rating) / 5 * 100%);
-  display: inline-block;
-  font-size: var(--star-size);
-  font-family: Times;
-  line-height: 1;
-}
 .total-votes {
   font-size: 15px;
-}
-
-.stars::after {
-  content: "★★★★★";
-  letter-spacing: 3px;
-  background: linear-gradient(
-    90deg,
-    var(--star-background) var(--percent),
-    var(--star-color) var(--percent)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .quote {
@@ -195,24 +286,24 @@ export async function main() {
       </div>
       <div class="rate-form" id="rate-form-teacher-kindness">
         <span>クリックして投票</span>
-        <input type="radio" id="star1" name="kindness-rate" /><!-- 
-    --><label for="star1" class="offhover hover" onclick="radioClick(1, 0)"
+        <input type="radio" id="star1" name="kindness-rate" /><!--
+    --><label for="star1" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star2" name="kindness-rate" /><!-- 
-    --><label for="star2" class="offhover hover" onclick="radioClick(2, 0)"
+        ><!--
+    --><input type="radio" id="star2" name="kindness-rate" /><!--
+    --><label for="star2" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star3" name="kindness-rate" /><!-- 
-    --><label for="star3" class="offhover hover" onclick="radioClick(3, 0)"
+        ><!--
+    --><input type="radio" id="star3" name="kindness-rate" /><!--
+    --><label for="star3" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star4" name="kindness-rate" /><!-- 
-    --><label for="star4" class="offhover hover" onclick="radioClick(4, 0)"
+        ><!--
+    --><input type="radio" id="star4" name="kindness-rate" /><!--
+    --><label for="star4" class="hover"
           >😡</label
-        ><!-- 
-    --><input type="radio" id="star5" name="kindness-rate" /><!-- 
-    --><label for="star5" class="offhover hover" onclick="radioClick(5, 0)"
+        ><!--
+    --><input type="radio" id="star5" name="kindness-rate" /><!--
+    --><label for="star5" class="hover"
           >😡</label
         >
       </div>
@@ -234,24 +325,24 @@ export async function main() {
       </div>
       <div class="rate-form" id="rate-form-assignment-difficulty">
         <span>クリックして投票</span>
-        <input type="radio" id="star6" name="difficulty-rate" /><!-- 
-        --><label for="star6" class="offhover hover" onclick="radioClick(1, 1)"
+        <input type="radio" id="star6" name="difficulty-rate" /><!--
+        --><label for="star6" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star7" name="difficulty-rate" /><!-- 
-        --><label for="star7" class="offhover hover" onclick="radioClick(2, 1)"
+        ><!--
+        --><input type="radio" id="star7" name="difficulty-rate" /><!--
+        --><label for="star7" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star8" name="difficulty-rate" /><!-- 
-        --><label for="star8" class="offhover hover" onclick="radioClick(3, 1)"
+        ><!--
+        --><input type="radio" id="star8" name="difficulty-rate" /><!--
+        --><label for="star8" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star9" name="difficulty-rate" /><!-- 
-        --><label for="star9" class="offhover hover" onclick="radioClick(4, 1)"
+        ><!--
+        --><input type="radio" id="star9" name="difficulty-rate" /><!--
+        --><label for="star9" class="hover"
           >😡</label
-        ><!-- 
-        --><input type="radio" id="star10" name="difficulty-rate" /><!-- 
-        --><label for="star10" class="offhover hover" onclick="radioClick(5, 1)"
+        ><!--
+        --><input type="radio" id="star10" name="difficulty-rate" /><!--
+        --><label for="star10" class="hover"
           >😡</label
         >
       </div>
@@ -270,13 +361,16 @@ export async function main() {
     </div>
   `);
 
-  // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
-  // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
-  courseTitleElement.insertAdjacentElement("afterend", commentContainerElement);
-  courseTitleElement.insertAdjacentElement("afterend", commentControlsElement);
-  courseTitleElement.insertAdjacentElement("afterend", angerToExamsElement);
-  courseTitleElement.insertAdjacentElement("afterend", angerToTeacherElement);
+  const takeshiRoot = stringToHtmlElement(`
+    <div id="takeshi-root"></div>
+  `);
+  courseTitleElement.insertAdjacentElement("afterend", takeshiRoot);
+
+  takeshiRoot.appendChild(angerToTeacherElement);
+  takeshiRoot.appendChild(angerToExamsElement);
+  takeshiRoot.appendChild(commentControlsElement);
+  takeshiRoot.appendChild(commentContainerElement);
 
   const kindnessRatingValue = document.querySelector("#kindness-rating-value");
   const kindnessRatingStar = document.querySelector("#kindness-rating-star");
@@ -291,9 +385,19 @@ export async function main() {
     "#difficulty-total-votes"
   );
 
+  const hoverOfTeacherKindness = [
+    ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),
+  ];
+  const hoverOfAssignmentDifficulty = [
+    ...document.querySelectorAll("#rate-form-assignment-difficulty .hover"),
+  ];
+  const labelElements = [...document.querySelectorAll(".rate-form label")];
+
+  kindnessRatingStar.style.setProperty("--rating", 0);
+  difficultyRatingStar.style.setProperty("--rating", 0);
+
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
-  
 
   const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
     await Promise.all([
@@ -301,11 +405,18 @@ export async function main() {
       getAssignmentDifficultyRatings(courseId),
       getComments(courseId),
     ]);
+
+  // const teacherKindnessRatings = [
+  //   { uid: "123", value: 3 },
+  //   { uid: "456", value: 4 },
+  // ];
+  // const assignmentDifficultyRatings = [
+  //   { uid: "123", value: 1 },
+  //   { uid: "456", value: 2 },
+  // ];
+  // const comments = [];
+
   const numberOfComments = comments.length;
-
-
-  console.log("teacherKindnessRatings", teacherKindnessRatings);
-  console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
 
   const kindnessCriterion = countCriterion(teacherKindnessRatings);
   const difficultyCriterion = countCriterion(assignmentDifficultyRatings);
@@ -324,29 +435,6 @@ export async function main() {
 
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);
-
-  // // DBから持ってきたコメントからHTML生成する箇所始まり
-  // // DBから持ってきたコメントのデータのダミー
-  // const comments = [
-  //   {
-  //     uid: "987654",
-  //     quote: "各授業で課す演習課題をレポートとして提出すること。 ",
-  //     content: "毎週1000語のレポートです。しんどい",
-  //     created_at: new Date("2023-01-03"),
-  //   },
-  //   {
-  //     uid: "ABCDEFG",
-  //     quote: "講義（50%）と演習（50%）を併用する。",
-  //     content: "講義0%と演習100%でした",
-  //     created_at: new Date("2023-01-02"),
-  //   },
-  //   {
-  //     uid: "123456",
-  //     quote: "講義（50%）と演習（50%）を併用する。",
-  //     content: "テスト",
-  //     created_at: new Date("2023-01-01"),
-  //   },
-  // ];
 
   function createCommentElement(comment) {
     const year = comment.createdAt.getFullYear();
@@ -372,16 +460,28 @@ export async function main() {
     commentContainerElement.appendChild(createCommentElement(comment));
   }
 
-  const hoverOfTeacherKindness = [
-    ...document.querySelectorAll("#rate-form-teacher-kindness .hover"),
-  ];
-  const hoverOfAssignmentDifficulty = [
-    ...document.querySelectorAll("#rate-form-assignment-difficulty .hover"),
-  ];
-  const labelElements = [...document.querySelectorAll(".rate-form label")];
-  console.log(labelElements);
+  const myAngerAtProf = teacherKindnessRatings.find(
+    (x) => x.uid === userId
+  )?.value;
+  const myAngerAtTasks = assignmentDifficultyRatings.find(
+    (x) => x.uid === userId
+  )?.value;
+  applyHoverHighlights(
+    hoverOfTeacherKindness,
+    newHighlights(myAngerAtProf ?? 0)
+  );
+  applyHoverHighlights(
+    hoverOfAssignmentDifficulty,
+    newHighlights(myAngerAtTasks ?? 0)
+  );
+
+  let isSubmitting = false;
 
   function onHover(i, nthForm) {
+    if (isSubmitting) {
+      return;
+    }
+
     let changeTarget;
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
@@ -389,12 +489,15 @@ export async function main() {
       changeTarget = hoverOfTeacherKindness;
     }
     for (let index = 0; index <= i; index++) {
-      changeTarget[index].classList.add("onhover");
-      changeTarget[index].classList.remove("offhover");
+      changeTarget[index].classList.add("hovered");
     }
   }
 
   function offHover(i, nthForm) {
+    if (isSubmitting) {
+      return;
+    }
+
     let changeTarget;
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
@@ -402,18 +505,20 @@ export async function main() {
       changeTarget = hoverOfTeacherKindness;
     }
     for (let index = 0; index <= i; index++) {
-      changeTarget[index].classList.remove("onhover");
-
-      let ok = 1;
-      for (const classElement of changeTarget[index].classList) {
-        if (classElement == "checked") ok = 0;
-      }
-      if (ok) {
-        changeTarget[index].classList.add("offhover");
-      }
+      changeTarget[index].classList.remove("hovered");
     }
   }
+
   async function radioClick(i) {
+    if (isSubmitting) {
+      return;
+    }
+
+    isSubmitting = true;
+    for (const e of document.querySelectorAll(".rating-row")) {
+      e.classList.add("submitting");
+    }
+
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
@@ -434,16 +539,11 @@ export async function main() {
       voteSystem = document.querySelector("#rate-form-teacher-kindness");
     }
 
-    changeTarget[value - 1].checked = "checked";
-    for (let index = 0; index <= value - 1; index++) {
-      changeTarget[index].classList.add("checked");
-    }
-    for (let index = value; index <= 4; index++) {
-      changeTarget[index].classList.remove("checked");
-      changeTarget[index].classList.add("offhover");
-    }
-
     voteSystem.appendChild(stringToHtmlElement(`<span>投票中...</span>`));
+
+    for (let index = 0; index < value; index++) {
+      changeTarget[index].classList.add("selected");
+    }
 
     await promise;
     window.location.reload();

@@ -203,6 +203,10 @@ export async function main() {
   margin-bottom: 20px;
 }
 
+.rating-row.submitting {
+  opacity: 0.7;
+}
+
 .rating {
   display: flex;
   gap: 10px;
@@ -363,13 +367,16 @@ export async function main() {
     </div>
   `);
 
-  // course-titleというIDのh1をHTMLの要素として持ってきましょう
   const courseTitleElement = document.querySelector("#course-title");
-  // course-titleの次の要素として上で作ったHTMLの要素を追加しましょう
-  courseTitleElement.insertAdjacentElement("afterend", commentContainerElement);
-  courseTitleElement.insertAdjacentElement("afterend", commentControlsElement);
-  courseTitleElement.insertAdjacentElement("afterend", angerToExamsElement);
-  courseTitleElement.insertAdjacentElement("afterend", angerToTeacherElement);
+  const takeshiRoot = stringToHtmlElement(`
+    <div id="takeshi-root"></div>
+  `);
+  courseTitleElement.insertAdjacentElement("afterend", takeshiRoot);
+
+  takeshiRoot.appendChild(angerToTeacherElement);
+  takeshiRoot.appendChild(angerToExamsElement);
+  takeshiRoot.appendChild(commentControlsElement);
+  takeshiRoot.appendChild(commentContainerElement);
 
   const kindnessRatingValue = document.querySelector("#kindness-rating-value");
   const kindnessRatingStar = document.querySelector("#kindness-rating-star");
@@ -473,7 +480,13 @@ export async function main() {
     }
   }
 
+  let isSubmitting = false;
+
   function onHover(i, nthForm) {
+    if (isSubmitting) {
+      return;
+    }
+
     let changeTarget;
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
@@ -486,6 +499,10 @@ export async function main() {
   }
 
   function offHover(i, nthForm) {
+    if (isSubmitting) {
+      return;
+    }
+
     let changeTarget;
     if (nthForm) {
       changeTarget = hoverOfAssignmentDifficulty;
@@ -496,7 +513,17 @@ export async function main() {
       changeTarget[index].classList.remove("hovered");
     }
   }
+
   async function radioClick(i) {
+    if (isSubmitting) {
+      return;
+    }
+
+    isSubmitting = true;
+    for (const e of document.querySelectorAll(".rating-row")) {
+      e.classList.add("submitting");
+    }
+
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 

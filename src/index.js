@@ -8,6 +8,98 @@ import {
   escapeHtml,
   submitComment,
 } from "./lib.js";
+
+/**
+ * @typedef {object} Rating
+ * @property {number} angerAtProf
+ * @property {number} angerAtTasks
+ */
+
+/**
+ * @param {unknown} x
+ * @returns {Rating | undefined}
+ */
+function parseRating(x) {
+  if (
+    !(
+      "angerAtProf" in x &&
+      typeof x.angerAtProf === "number" &&
+      Number.isInteger(x.angerAtProf) &&
+      1 <= x.angerAtProf &&
+      x.angerAtProf <= 5
+    )
+  ) {
+    return undefined;
+  }
+
+  if (
+    !(
+      "angerAtTasks" in x &&
+      typeof x.angerAtTasks === "number" &&
+      Number.isInteger(x.angerAtTasks) &&
+      1 <= x.angerAtTasks &&
+      x.angerAtTasks <= 5
+    )
+  ) {
+    return undefined;
+  }
+
+  return x;
+}
+
+class Storage {
+  /** @type {globalThis.Storage} */
+  localStorage;
+
+  /**
+   * @param {globalThis.Storage} localStorage
+   */
+  constructor(localStorage) {
+    this.localStorage = localStorage;
+  }
+
+  /**
+   * @param {string} key
+   * @returns {unknown | undefined}
+   */
+  read(key) {
+    const item = this.localStorage.getItem(key);
+    if (item === null) {
+      return undefined;
+    }
+
+    try {
+      return JSON.parse(item);
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * @param {string} key
+   * @param {unknown} value
+   * @returns {void}
+   */
+  write(key, value) {
+    this.localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  /**
+   * @returns {Rating | undefined}
+   */
+  readRating() {
+    return parseRating(this.read("rating"));
+  }
+
+  /**
+   * @param {Rating} x
+   * @returns {void}
+   */
+  writeRating(x) {
+    this.write("rating", x);
+  }
+}
+
 function round(value) {
   let ret;
   ret = (Math.round(value * 10) / 10).toFixed(1);
@@ -293,7 +385,6 @@ export async function main() {
 
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
-  
 
   const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
     await Promise.all([
@@ -302,7 +393,6 @@ export async function main() {
       getComments(courseId),
     ]);
   const numberOfComments = comments.length;
-
 
   console.log("teacherKindnessRatings", teacherKindnessRatings);
   console.log("assignmentDifficultyRatings", assignmentDifficultyRatings);
@@ -324,29 +414,6 @@ export async function main() {
 
   kindnessRatingStar.style.setProperty("--rating", kindness);
   difficultyRatingStar.style.setProperty("--rating", difficulty);
-
-  // // DBから持ってきたコメントからHTML生成する箇所始まり
-  // // DBから持ってきたコメントのデータのダミー
-  // const comments = [
-  //   {
-  //     uid: "987654",
-  //     quote: "各授業で課す演習課題をレポートとして提出すること。 ",
-  //     content: "毎週1000語のレポートです。しんどい",
-  //     created_at: new Date("2023-01-03"),
-  //   },
-  //   {
-  //     uid: "ABCDEFG",
-  //     quote: "講義（50%）と演習（50%）を併用する。",
-  //     content: "講義0%と演習100%でした",
-  //     created_at: new Date("2023-01-02"),
-  //   },
-  //   {
-  //     uid: "123456",
-  //     quote: "講義（50%）と演習（50%）を併用する。",
-  //     content: "テスト",
-  //     created_at: new Date("2023-01-01"),
-  //   },
-  // ];
 
   function createCommentElement(comment) {
     const year = comment.createdAt.getFullYear();

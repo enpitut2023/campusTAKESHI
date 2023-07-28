@@ -1,4 +1,12 @@
-import { stringToHtmlElement } from "./lib.js";
+/**
+ * @param {string} s
+ * @return {Node}
+ */
+function stringToHtmlElement(s) {
+  const template = document.createElement("template");
+  template.innerHTML = s.trim();
+  return template.content.firstChild;
+}
 
 /**
  * @param {number} currentYear
@@ -19,6 +27,31 @@ function createGoToSyllabus(currentYear, courseCode, courseName) {
 }
 
 /**
+ * @param {string} pathname
+ * @returns {boolean}
+ */
+function shouldRun(pathname) {
+  const patterns = [
+    /^\/ct\/course_\d+$/,
+    /^\/ct\/course_\d+_query$/,
+    /^\/ct\/course_\d+_survey$/,
+    /^\/ct\/course_\d+_report$/,
+    /^\/ct\/course_\d+_project$/,
+    /^\/ct\/course_\d+_grade$/,
+    /^\/ct\/course_\d+_news_\d+$/,
+    /^\/ct\/page_[0-9a-f]+$/,
+  ];
+
+  for (const p of patterns) {
+    if (pathname.match(p)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * @param {string} style
  * @returns {void}
  */
@@ -29,6 +62,10 @@ function applyStyle(style) {
 }
 
 export async function main() {
+  if (!shouldRun(window.location.pathname)) {
+    return;
+  }
+
   applyStyle(`
 .go-to-syllabus {
   padding: 1em;
@@ -42,14 +79,13 @@ export async function main() {
   const currentYear = new Date().getFullYear();
   const courseCode = document.querySelector(".coursecode").innerHTML.trim();
   const courseName = document.querySelector("#coursename").innerHTML.trim();
-  const pageHeader = document.querySelector(
-    ".pageheader-course.pageheader-courseV2"
-  );
+  const pageBody = document.querySelector(".pagebody");
 
   const [goToSyllabus, _] = createGoToSyllabus(
     currentYear,
     courseCode,
     courseName
   );
-  pageHeader.insertAdjacentElement("afterend", goToSyllabus);
+  pageBody.appendChild(goToSyllabus);
+  pageBody.style.paddingBottom = "0";
 }

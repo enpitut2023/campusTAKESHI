@@ -183,19 +183,17 @@ export async function main() {
 }
 
 .hover {
-  position: relative;
   font-size: 30px;
+  filter: grayscale(1);
 }
-.checked {
-  position: relative;
-  font-size: 30px;
-  color: #f0bc43;
+
+.hover.preselected {
+  filter: grayscale(0.5);
 }
-.onhover {
-  color: #f0bc43;
-}
-.offhover {
-  filter: grayscale(100%);
+
+.hover.hovered,
+.hover.selected {
+  filter: grayscale(0);
 }
 
 .rating-row {
@@ -310,23 +308,23 @@ export async function main() {
       <div class="rate-form" id="rate-form-teacher-kindness">
         <span>クリックして投票</span>
         <input type="radio" id="star1" name="kindness-rate" /><!-- 
-    --><label for="star1" class="offhover hover" 
+    --><label for="star1" class="hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star2" name="kindness-rate" /><!-- 
-    --><label for="star2" class="offhover hover" 
+    --><label for="star2" class="hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star3" name="kindness-rate" /><!-- 
-    --><label for="star3" class="offhover hover" 
+    --><label for="star3" class="hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star4" name="kindness-rate" /><!-- 
-    --><label for="star4" class="offhover hover" 
+    --><label for="star4" class="hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star5" name="kindness-rate" /><!-- 
-    --><label for="star5" class="offhover hover" 
+    --><label for="star5" class="hover" 
           >😡</label
         >
       </div>
@@ -349,23 +347,23 @@ export async function main() {
       <div class="rate-form" id="rate-form-assignment-difficulty">
         <span>クリックして投票</span>
         <input type="radio" id="star6" name="difficulty-rate" /><!-- 
-        --><label for="star6" class="offhover hover" 
+        --><label for="star6" class="hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star7" name="difficulty-rate" /><!-- 
-        --><label for="star7" class="offhover hover" 
+        --><label for="star7" class="hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star8" name="difficulty-rate" /><!-- 
-        --><label for="star8" class="offhover hover" 
+        --><label for="star8" class="hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star9" name="difficulty-rate" /><!-- 
-        --><label for="star9" class="offhover hover" 
+        --><label for="star9" class="hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star10" name="difficulty-rate" /><!-- 
-        --><label for="star10" class="offhover hover" 
+        --><label for="star10" class="hover" 
           >😡</label
         >
       </div>
@@ -485,8 +483,7 @@ export async function main() {
   )) {
     if (highlighted) {
       // TODO: needs 3rd state (not hovered but highlighted)
-      element.classList.remove("offhover");
-      element.classList.add("onhover");
+      element.classList.add("preselected");
     }
   }
 
@@ -496,8 +493,7 @@ export async function main() {
   )) {
     if (highlighted) {
       // TODO: needs 3rd state (not hovered but highlighted)
-      element.classList.remove("offhover");
-      element.classList.add("onhover");
+      element.classList.add("preselected");
     }
   }
 
@@ -509,8 +505,7 @@ export async function main() {
       changeTarget = hoverOfTeacherKindness;
     }
     for (let index = 0; index <= i; index++) {
-      changeTarget[index].classList.add("onhover");
-      changeTarget[index].classList.remove("offhover");
+      changeTarget[index].classList.add("hovered");
     }
   }
 
@@ -522,15 +517,7 @@ export async function main() {
       changeTarget = hoverOfTeacherKindness;
     }
     for (let index = 0; index <= i; index++) {
-      changeTarget[index].classList.remove("onhover");
-
-      let ok = 1;
-      for (const classElement of changeTarget[index].classList) {
-        if (classElement == "checked") ok = 0;
-      }
-      if (ok) {
-        changeTarget[index].classList.add("offhover");
-      }
+      changeTarget[index].classList.remove("hovered");
     }
   }
   async function radioClick(i) {
@@ -540,12 +527,13 @@ export async function main() {
     const rating = storage.readRating() ?? {};
     let promise;
     if (nthForm == 0) {
-      promise = submitTeacherKindness(courseId, value);
+      // promise = submitTeacherKindness(courseId, value);
       storage.writeRating({ ...rating, angerAtProf: value });
     } else if (nthForm == 1) {
-      promise = submitAssignmentDifficulty(courseId, value);
+      // promise = submitAssignmentDifficulty(courseId, value);
       storage.writeRating({ ...rating, angerAtTasks: value });
     }
+    console.log({ value, nthForm });
 
     let changeTarget;
     let voteSystem;
@@ -557,19 +545,14 @@ export async function main() {
       voteSystem = document.querySelector("#rate-form-teacher-kindness");
     }
 
-    changeTarget[value - 1].checked = "checked";
-    for (let index = 0; index <= value - 1; index++) {
-      changeTarget[index].classList.add("checked");
-    }
-    for (let index = value; index <= 4; index++) {
-      changeTarget[index].classList.remove("checked");
-      changeTarget[index].classList.add("offhover");
-    }
-
     voteSystem.appendChild(stringToHtmlElement(`<span>投票中...</span>`));
 
+    for (let index = 0; index < value; index++) {
+      changeTarget[index].classList.add("selected");
+    }
+
     await promise;
-    window.location.reload();
+    // window.location.reload();
   }
 
   for (let i = 0; i < 5; i++) {

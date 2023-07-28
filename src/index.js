@@ -10,9 +10,23 @@ import {
 } from "./lib.js";
 
 /**
+ * @template T
+ * @template U
+ * @param {T[]} ts
+ * @param {U[]} us
+ * @returns {Generator<[T, U], unknown, unknown>}
+ */
+function* zip(ts, us) {
+  const len = Math.min(ts.length, us.length);
+  for (let i = 0; i < len; i++) {
+    yield [ts[i], us[i]];
+  }
+}
+
+/**
  * @typedef {object} Rating
- * @property {number} angerAtProf
- * @property {number} angerAtTasks
+ * @property {number | undefined} angerAtProf
+ * @property {number | undefined} angerAtTasks
  */
 
 /**
@@ -20,31 +34,7 @@ import {
  * @returns {Rating | undefined}
  */
 function parseRating(x) {
-  if (
-    !(
-      "angerAtProf" in x &&
-      typeof x.angerAtProf === "number" &&
-      Number.isInteger(x.angerAtProf) &&
-      1 <= x.angerAtProf &&
-      x.angerAtProf <= 5
-    )
-  ) {
-    return undefined;
-  }
-
-  if (
-    !(
-      "angerAtTasks" in x &&
-      typeof x.angerAtTasks === "number" &&
-      Number.isInteger(x.angerAtTasks) &&
-      1 <= x.angerAtTasks &&
-      x.angerAtTasks <= 5
-    )
-  ) {
-    return undefined;
-  }
-
-  return x;
+  return x === null || x === undefined ? undefined : x;
 }
 
 class Storage {
@@ -98,6 +88,38 @@ class Storage {
   writeRating(x) {
     this.write("rating", x);
   }
+}
+
+/**
+ * @param {number} n
+ * @returns {[boolean, boolean, boolean, boolean, boolean]}
+ */
+function newHighlights(n) {
+  const hs = new Array(5);
+  for (let i = 0; i < hs.length; i++) {
+    hs[i] = i < n;
+  }
+  return hs;
+}
+
+/**
+ * @param {number | undefined} valueFromLocalStorage
+ * @param {number | undefined} valueFromDb
+ * @returns {[boolean, boolean, boolean, boolean, boolean]}
+ */
+function initialHighlights(valueFromLocalStorage, valueFromDb) {
+  let n;
+  if (valueFromDb === undefined) {
+    if (valueFromLocalStorage === undefined) {
+      n = 0;
+    } else {
+      n = valueFromLocalStorage;
+    }
+  } else {
+    n = valueFromDb;
+  }
+
+  return newHighlights(n);
 }
 
 function round(value) {
@@ -288,23 +310,23 @@ export async function main() {
       <div class="rate-form" id="rate-form-teacher-kindness">
         <span>クリックして投票</span>
         <input type="radio" id="star1" name="kindness-rate" /><!-- 
-    --><label for="star1" class="offhover hover" onclick="radioClick(1, 0)"
+    --><label for="star1" class="offhover hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star2" name="kindness-rate" /><!-- 
-    --><label for="star2" class="offhover hover" onclick="radioClick(2, 0)"
+    --><label for="star2" class="offhover hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star3" name="kindness-rate" /><!-- 
-    --><label for="star3" class="offhover hover" onclick="radioClick(3, 0)"
+    --><label for="star3" class="offhover hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star4" name="kindness-rate" /><!-- 
-    --><label for="star4" class="offhover hover" onclick="radioClick(4, 0)"
+    --><label for="star4" class="offhover hover" 
           >😡</label
         ><!-- 
     --><input type="radio" id="star5" name="kindness-rate" /><!-- 
-    --><label for="star5" class="offhover hover" onclick="radioClick(5, 0)"
+    --><label for="star5" class="offhover hover" 
           >😡</label
         >
       </div>
@@ -327,23 +349,23 @@ export async function main() {
       <div class="rate-form" id="rate-form-assignment-difficulty">
         <span>クリックして投票</span>
         <input type="radio" id="star6" name="difficulty-rate" /><!-- 
-        --><label for="star6" class="offhover hover" onclick="radioClick(1, 1)"
+        --><label for="star6" class="offhover hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star7" name="difficulty-rate" /><!-- 
-        --><label for="star7" class="offhover hover" onclick="radioClick(2, 1)"
+        --><label for="star7" class="offhover hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star8" name="difficulty-rate" /><!-- 
-        --><label for="star8" class="offhover hover" onclick="radioClick(3, 1)"
+        --><label for="star8" class="offhover hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star9" name="difficulty-rate" /><!-- 
-        --><label for="star9" class="offhover hover" onclick="radioClick(4, 1)"
+        --><label for="star9" class="offhover hover" 
           >😡</label
         ><!-- 
         --><input type="radio" id="star10" name="difficulty-rate" /><!-- 
-        --><label for="star10" class="offhover hover" onclick="radioClick(5, 1)"
+        --><label for="star10" class="offhover hover" 
           >😡</label
         >
       </div>
@@ -386,12 +408,19 @@ export async function main() {
   const path = location.pathname.split("/");
   const courseId = path[3]; // URLから取得した科目番号
 
-  const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
-    await Promise.all([
-      getTeacherKindnessRatings(courseId),
-      getAssignmentDifficultyRatings(courseId),
-      getComments(courseId),
-    ]);
+  const storage = new Storage(window.localStorage);
+
+  // const [teacherKindnessRatings, assignmentDifficultyRatings, comments] =
+  //   await Promise.all([
+  //     getTeacherKindnessRatings(courseId),
+  //     getAssignmentDifficultyRatings(courseId),
+  //     getComments(courseId),
+  //   ]);
+
+  const teacherKindnessRatings = [];
+  const assignmentDifficultyRatings = [];
+  const comments = [];
+
   const numberOfComments = comments.length;
 
   console.log("teacherKindnessRatings", teacherKindnessRatings);
@@ -446,7 +475,31 @@ export async function main() {
     ...document.querySelectorAll("#rate-form-assignment-difficulty .hover"),
   ];
   const labelElements = [...document.querySelectorAll(".rate-form label")];
-  console.log(labelElements);
+
+  const rating = storage.readRating();
+  // TODO: fetch rating value from db if it doesn't exist in the local storage
+
+  for (const [element, highlighted] of zip(
+    hoverOfTeacherKindness,
+    initialHighlights(rating?.angerAtProf, undefined)
+  )) {
+    if (highlighted) {
+      // TODO: needs 3rd state (not hovered but highlighted)
+      element.classList.remove("offhover");
+      element.classList.add("onhover");
+    }
+  }
+
+  for (const [element, highlighted] of zip(
+    hoverOfAssignmentDifficulty,
+    initialHighlights(rating?.angerAtTasks, undefined)
+  )) {
+    if (highlighted) {
+      // TODO: needs 3rd state (not hovered but highlighted)
+      element.classList.remove("offhover");
+      element.classList.add("onhover");
+    }
+  }
 
   function onHover(i, nthForm) {
     let changeTarget;
@@ -484,11 +537,14 @@ export async function main() {
     let value = (i % 5) + 1;
     let nthForm = Math.trunc(i / 5);
 
+    const rating = storage.readRating() ?? {};
     let promise;
     if (nthForm == 0) {
       promise = submitTeacherKindness(courseId, value);
+      storage.writeRating({ ...rating, angerAtProf: value });
     } else if (nthForm == 1) {
       promise = submitAssignmentDifficulty(courseId, value);
+      storage.writeRating({ ...rating, angerAtTasks: value });
     }
 
     let changeTarget;
